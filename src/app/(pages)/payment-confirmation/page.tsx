@@ -35,10 +35,6 @@ function readCheckoutData(): CheckoutStorage | null {
     }
 }
 
-function safeImage(url?: string) {
-    return url?.trim() ? url : "/images/placeholder.png"
-}
-
 export default function PaymentConfirmationPage() {
     const ADVANCE_AMOUNT = 250
     const ADVANCE_CURRENCY = "Rs "
@@ -58,8 +54,8 @@ export default function PaymentConfirmationPage() {
     }, [file])
 
     const RECEIVER = {
-        name: "MUHAMMAD KHURRAM SHEIKH",
-        easypaisa: "*********4593",
+        name: "KHURRAM SHEIKH",
+        easypaisa: "03191994293",
         accountLabel: "Unique Items",
     }
 
@@ -154,7 +150,7 @@ export default function PaymentConfirmationPage() {
                                 <CardContent className="flex flex-col items-center gap-4">
                                     <div className="relative h-56 w-56 overflow-hidden rounded-xl border bg-white">
                                         <Image
-                                            src="/qrcode.jpeg"
+                                            src="/jazzcashqrcode.jpeg"
                                             alt="Payment QR Code"
                                             fill
                                             className="object-contain"
@@ -187,7 +183,7 @@ export default function PaymentConfirmationPage() {
                                     </div>
 
                                     <div className="rounded-xl border bg-zinc-50 p-4">
-                                        <p className="text-xs text-zinc-500">EasyPaisa</p>
+                                        <p className="text-xs text-zinc-500">Jazz cash</p>
                                         <p className="text-sm font-semibold text-zinc-900">{RECEIVER.easypaisa}</p>
                                         <p className="text-xs text-zinc-600">Account: {RECEIVER.accountLabel}</p>
                                     </div>
