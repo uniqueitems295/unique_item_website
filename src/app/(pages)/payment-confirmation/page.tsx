@@ -40,6 +40,9 @@ function safeImage(url?: string) {
 }
 
 export default function PaymentConfirmationPage() {
+    const ADVANCE_AMOUNT = 250
+    const ADVANCE_CURRENCY = "Rs "
+
     const [file, setFile] = React.useState<File | null>(null)
     const [preview, setPreview] = React.useState<string>("")
     const [submitting, setSubmitting] = React.useState(false)
@@ -54,6 +57,12 @@ export default function PaymentConfirmationPage() {
         return () => URL.revokeObjectURL(url)
     }, [file])
 
+    const RECEIVER = {
+        name: "MUHAMMAD KHURRAM SHEIKH",
+        easypaisa: "*********4593",
+        accountLabel: "Unique Items",
+    }
+
     const handleSubmit = async () => {
         const checkout = readCheckoutData()
         if (!checkout) {
@@ -67,7 +76,6 @@ export default function PaymentConfirmationPage() {
 
         try {
             setSubmitting(true)
-
 
             const ext = file.name.split(".").pop() || "jpg"
             const blob = await upload(`payment-proof-${Date.now()}.${ext}`, file, {
@@ -88,7 +96,6 @@ export default function PaymentConfirmationPage() {
                 },
             }
 
-
             const res = await axios.post("/api/orders", payload)
 
             localStorage.removeItem("cart")
@@ -100,13 +107,6 @@ export default function PaymentConfirmationPage() {
             setSubmitting(false)
         }
     }
-
-    const RECEIVER = {
-        name: "MUHAMMAD KHURRAM SHEIKH",
-        easypaisa: "*********4593",
-        accountLabel: "Unique Items",
-    }
-
 
     return (
         <UserWrapper>
@@ -122,8 +122,25 @@ export default function PaymentConfirmationPage() {
                         </h1>
 
                         <p className="mt-2 max-w-2xl text-sm text-zinc-600 sm:text-base">
-                            Scan the QR code and pay the delivery fee, then upload the screenshot. Our team will verify and confirm your order.
+                            Please pay the advance amount and upload the screenshot. Our team will verify and confirm your order.
                         </p>
+
+                        <div className="mt-6 rounded-2xl border bg-white p-5">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <p className="text-xs uppercase tracking-wide text-zinc-500">Advance Payment Required</p>
+                                    <p className="mt-1 text-2xl font-semibold text-zinc-900">
+                                        {ADVANCE_CURRENCY}
+                                        {ADVANCE_AMOUNT}
+                                    </p>
+                                    <p className="mt-1 text-sm text-zinc-600">
+                                        Send exactly {ADVANCE_CURRENCY}
+                                        {ADVANCE_AMOUNT} before we can process your order.
+                                    </p>
+                                </div>
+                                <Badge className="rounded-full px-3 py-1">Required</Badge>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -144,7 +161,8 @@ export default function PaymentConfirmationPage() {
                                         />
                                     </div>
                                     <p className="text-sm text-zinc-600 text-center">
-                                        Scan with EasyPaisa / JazzCash and pay the delivery fee, then upload the screenshot on the right side.
+                                        Scan with EasyPaisa / JazzCash and pay {ADVANCE_CURRENCY}
+                                        {ADVANCE_AMOUNT} advance, then upload the screenshot on the right side.
                                     </p>
                                 </CardContent>
                             </Card>
@@ -154,6 +172,15 @@ export default function PaymentConfirmationPage() {
                                     <CardTitle>Manual Transfer</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
+                                    <div className="rounded-xl border bg-zinc-50 p-4">
+                                        <p className="text-xs text-zinc-500">Amount to Send</p>
+                                        <p className="text-sm font-semibold text-zinc-900">
+                                            {ADVANCE_CURRENCY}
+                                            {ADVANCE_AMOUNT} (Advance Payment)
+                                        </p>
+                                        <p className="text-xs text-zinc-600">Please send the exact amount.</p>
+                                    </div>
+
                                     <div className="rounded-xl border bg-zinc-50 p-4">
                                         <p className="text-xs text-zinc-500">Receiver Name</p>
                                         <p className="text-sm font-semibold text-zinc-900">{RECEIVER.name}</p>
@@ -165,10 +192,12 @@ export default function PaymentConfirmationPage() {
                                         <p className="text-xs text-zinc-600">Account: {RECEIVER.accountLabel}</p>
                                     </div>
 
-                                    <p className="text-xs text-zinc-500">Please send the exact delivery fee amount.</p>
+                                    <p className="text-xs text-zinc-500">
+                                        After sending {ADVANCE_CURRENCY}
+                                        {ADVANCE_AMOUNT}, upload your payment screenshot to confirm your order.
+                                    </p>
                                 </CardContent>
                             </Card>
-
                         </div>
 
                         <div className="space-y-6">
@@ -177,6 +206,18 @@ export default function PaymentConfirmationPage() {
                                     <CardTitle>Upload Payment Proof</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
+                                    <div className="rounded-2xl border bg-zinc-50 p-4">
+                                        <p className="text-xs text-zinc-500">Required Advance</p>
+                                        <p className="text-lg font-semibold text-zinc-900">
+                                            {ADVANCE_CURRENCY}
+                                            {ADVANCE_AMOUNT}
+                                        </p>
+                                        <p className="text-xs text-zinc-600">
+                                            Upload the screenshot showing {ADVANCE_CURRENCY}
+                                            {ADVANCE_AMOUNT} payment.
+                                        </p>
+                                    </div>
+
                                     <label className="flex h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed bg-zinc-50 text-center">
                                         <Upload className="h-6 w-6 text-zinc-500" />
                                         <p className="mt-2 text-sm text-zinc-600">Upload screenshot of payment</p>

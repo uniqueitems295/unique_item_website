@@ -45,7 +45,7 @@ type CheckoutStorage = {
     createdAt: string
 }
 
-const SHIPPING_FEE = 200
+const SHIPPING_FEE = 0
 
 function safeImage(url?: string) {
     return url?.trim() ? url : "/images/placeholder.png"
@@ -385,7 +385,7 @@ export default function CheckoutPage() {
                                             </div>
                                             <div className="flex justify-between">
                                                 <span>Shipping</span>
-                                                <span>{cart.length ? formatPKR(SHIPPING_FEE) : formatPKR(0)}</span>
+                                                <span>Free</span>
                                             </div>
                                         </div>
 
