@@ -18,7 +18,8 @@ import { ArrowUpRight, Filter, Search } from "lucide-react"
 import UserWrapper from "@/app/(wrappers)/userWrapper"
 import { useSearchParams } from "next/navigation"
 
-type Category = "all" | "men" | "women" | "kids" | "sport"
+type Category = "all" | "men" | "women" | "kids" | "sport" | "couplewatches"
+
 type Availability = "all" | "in" | "out"
 
 type Product = {
@@ -48,6 +49,7 @@ const CATEGORIES: { key: Category; label: string }[] = [
     { key: "all", label: "All Watches" },
     { key: "men", label: "Men Watches" },
     { key: "women", label: "Women Watches" },
+    { key: "couplewatches", label: "Couple watches" },
     { key: "kids", label: "Kids Watches" },
     { key: "sport", label: "Sport Watches" },
 ]
@@ -69,6 +71,7 @@ function normalizeCategory(v: string): Category {
     if (s === "women") return "women"
     if (s === "kids") return "kids"
     if (s === "sport") return "sport"
+    if (s === "couplewatches") return "couplewatches"
     return "all"
 }
 

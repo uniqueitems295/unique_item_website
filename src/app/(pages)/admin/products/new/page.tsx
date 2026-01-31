@@ -300,6 +300,7 @@ export default function AddNewProductPage() {
                                                 <SelectItem value="women">Women Watches</SelectItem>
                                                 <SelectItem value="kids">Kids Watches</SelectItem>
                                                 <SelectItem value="sport">Sport Watches</SelectItem>
+                                                <SelectItem value="couplewatches">Couple watches</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
