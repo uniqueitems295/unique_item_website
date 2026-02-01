@@ -11,6 +11,11 @@ import { Spinner } from "@/components/ui/spinner"
 import { Star, Truck, ShieldCheck, RefreshCcw } from "lucide-react"
 import UserWrapper from "@/app/(wrappers)/userWrapper"
 
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay, Pagination } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/pagination"
+
 type Product = {
     _id: string
     name: string
@@ -20,7 +25,8 @@ type Product = {
     category: string
     collection: string
     description?: string
-    imageUrl?: string
+    images?: string[]
+    colors?: string[]
     status: "published" | "draft"
     inStock: boolean
 }
@@ -31,10 +37,9 @@ type CartItem = {
     name: string
     price: number
     imageUrl: string
+    color?: string
     qty: number
 }
-
-/* ---------- helpers (same as shop page) ---------- */
 
 function safeImage(url?: string) {
     return url?.trim() ? url : "/images/placeholder.png"
@@ -43,6 +48,11 @@ function safeImage(url?: string) {
 function formatPKR(n: number) {
     const v = Number.isFinite(n) ? n : 0
     return `Rs.${v.toLocaleString("en-US")}.00`
+}
+
+function getCoverImage(p: Product) {
+    const first = p.images?.[0]?.trim()
+    return safeImage(first)
 }
 
 function readCart(): CartItem[] {
@@ -62,22 +72,32 @@ function writeCart(items: CartItem[]) {
 
 function addToCart(item: Omit<CartItem, "qty">) {
     const cart = readCart()
-    const idx = cart.findIndex((x) => x.id === item.id)
+    const idx = cart.findIndex(
+        (x) => x.id === item.id && (x.color || "") === (item.color || "")
+    )
 
     if (idx >= 0) {
-        cart[idx].qty += 1
+        cart[idx] = { ...cart[idx], qty: (cart[idx].qty || 1) + 1 }
     } else {
         cart.push({ ...item, qty: 1 })
     }
 
     writeCart(cart)
+    return cart
 }
 
-function isInCart(id: string) {
-    return readCart().some((x) => x.id === id)
+function isInCart(id: string, color?: string) {
+    const c = (color || "").trim().toLowerCase()
+    return readCart().some(
+        (x) =>
+            x.id === id &&
+            ((x.color || "").trim().toLowerCase() === c)
+    )
 }
 
-/* ---------- page ---------- */
+function randInt(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
 
 export default function ProductDetailsPage({
     params,
@@ -86,10 +106,23 @@ export default function ProductDetailsPage({
 }) {
     const { slug } = React.use(params)
 
-
     const [loading, setLoading] = React.useState(true)
     const [product, setProduct] = React.useState<Product | null>(null)
+
+    const [selectedColor, setSelectedColor] = React.useState<string>("")
     const [added, setAdded] = React.useState(false)
+
+    const [autoplayDelay] = React.useState(() => randInt(4000, 6500))
+
+    const slides = React.useMemo(() => {
+        const imgs = (product?.images || []).map((u) => safeImage(u))
+        return imgs.length > 0 ? imgs : ["/images/placeholder.png"]
+    }, [product])
+
+    const colors = React.useMemo(() => {
+        const arr = Array.isArray(product?.colors) ? product!.colors! : []
+        return arr.map((c) => String(c).trim()).filter(Boolean)
+    }, [product])
 
     React.useEffect(() => {
         const fetchProduct = async () => {
@@ -99,9 +132,7 @@ export default function ProductDetailsPage({
                 const res = await axios.get("/api/products")
                 const products: Product[] = res.data?.products || []
 
-                const found = products.find(
-                    (p) => p.slug === slug && p.status === "published"
-                )
+                const found = products.find((p) => p.slug === slug && p.status === "published")
 
                 if (!found) {
                     setProduct(null)
@@ -109,7 +140,15 @@ export default function ProductDetailsPage({
                 }
 
                 setProduct(found)
-                setAdded(isInCart(found._id))
+
+                const firstColor =
+                    Array.isArray(found.colors)
+                        ? found.colors.map((c) => String(c).trim()).filter(Boolean)[0] || ""
+                        : ""
+
+                setSelectedColor(firstColor)
+
+                setAdded(isInCart(found._id, firstColor))
             } catch {
                 toast("Failed to load product")
             } finally {
@@ -119,6 +158,13 @@ export default function ProductDetailsPage({
 
         fetchProduct()
     }, [slug])
+
+    React.useEffect(() => {
+        if (!product) return
+        setAdded(isInCart(product._id, selectedColor))
+    }, [product, selectedColor])
+
+    const mustPickColor = colors.length > 0 && !selectedColor
 
     const handleAdd = () => {
         if (!product) return
@@ -133,7 +179,8 @@ export default function ProductDetailsPage({
             slug: product.slug,
             name: product.name,
             price: product.price,
-            imageUrl: safeImage(product.imageUrl),
+            imageUrl: getCoverImage(product),
+            color: selectedColor || undefined,
         })
 
         setAdded(true)
@@ -143,13 +190,10 @@ export default function ProductDetailsPage({
     return (
         <UserWrapper>
             <div className="min-h-screen bg-white">
-                {/* Breadcrumb */}
                 <section className="border-b bg-zinc-50">
                     <div className="mx-auto max-w-7xl px-4 py-4 text-sm text-zinc-600">
                         <Link href="/">Home</Link> / <Link href="/shop">Shop</Link> /{" "}
-                        <span className="text-zinc-900 font-medium">
-                            {product?.name || "Product"}
-                        </span>
+                        <span className="text-zinc-900 font-medium">{product?.name || "Product"}</span>
                     </div>
                 </section>
 
@@ -160,9 +204,7 @@ export default function ProductDetailsPage({
                 ) : !product ? (
                     <div className="text-center py-24">
                         <h2 className="text-2xl font-semibold">Product not found</h2>
-                        <p className="text-zinc-600 mt-2">
-                            This product may be removed or unpublished.
-                        </p>
+                        <p className="text-zinc-600 mt-2">This product may be removed or unpublished.</p>
                         <Button asChild className="mt-6">
                             <Link href="/shop">Back to shop</Link>
                         </Button>
@@ -170,19 +212,44 @@ export default function ProductDetailsPage({
                 ) : (
                     <section className="py-12">
                         <div className="mx-auto max-w-7xl px-4 grid gap-10 lg:grid-cols-2">
-                            {/* Image */}
-                            <div className="relative aspect-square rounded-2xl overflow-hidden bg-zinc-50">
-                                <Image
-                                    src={safeImage(product.imageUrl)}
-                                    alt={product.name}
-                                    fill
-                                    className="object-cover"
-                                />
+                            <div className="relative overflow-hidden rounded-2xl bg-zinc-50">
+                                <div className="relative aspect-square w-full">
+                                    <Swiper
+                                        modules={[Pagination, Autoplay]}
+                                        slidesPerView={1}
+                                        loop={slides.length > 1}
+                                        pagination={{ clickable: true }}
+                                        autoplay={
+                                            slides.length > 1
+                                                ? {
+                                                    delay: autoplayDelay,
+                                                    disableOnInteraction: false,
+                                                    pauseOnMouseEnter: true,
+                                                }
+                                                : false
+                                        }
+                                        className="h-full w-full"
+                                    >
+                                        {slides.map((src, idx) => (
+                                            <SwiperSlide key={`${product._id}-${idx}`}>
+                                                <div className="relative h-full w-full">
+                                                    <Image src={src} alt={product.name} fill className="object-cover" />
+                                                </div>
+                                            </SwiperSlide>
+                                        ))}
+                                    </Swiper>
+                                </div>
                             </div>
 
-                            {/* Info */}
                             <div className="space-y-6">
-                                <Badge>{product.category}</Badge>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <Badge>{product.category}</Badge>
+                                    {!product.inStock && (
+                                        <Badge variant="secondary" className="rounded-full">
+                                            Sold Out
+                                        </Badge>
+                                    )}
+                                </div>
 
                                 <h1 className="text-3xl font-semibold">{product.name}</h1>
 
@@ -193,26 +260,53 @@ export default function ProductDetailsPage({
                                 </div>
 
                                 <div className="flex gap-3 items-end">
-                                    <p className="text-3xl font-bold">
-                                        {formatPKR(product.price)}
-                                    </p>
+                                    <p className="text-3xl font-bold">{formatPKR(product.price)}</p>
                                     {product.oldPrice && (
-                                        <p className="line-through text-zinc-500">
-                                            {formatPKR(product.oldPrice)}
-                                        </p>
+                                        <p className="line-through text-zinc-500">{formatPKR(product.oldPrice)}</p>
                                     )}
                                 </div>
 
-                                <p className="text-zinc-600">
-                                    {product.description || "No description available."}
-                                </p>
+                                {colors.length > 0 && (
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-semibold text-zinc-900">Available Colors</p>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {colors.map((c) => {
+                                                const active = selectedColor === c
+                                                return (
+                                                    <button
+                                                        key={c}
+                                                        type="button"
+                                                        onClick={() => setSelectedColor(c)}
+                                                        className={
+                                                            "rounded-full border px-4 py-2 text-sm transition " +
+                                                            (active
+                                                                ? "border-zinc-900 bg-zinc-900 text-white"
+                                                                : "border-zinc-200 bg-white hover:bg-zinc-50")
+                                                        }
+                                                    >
+                                                        {c}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+
+                                        {selectedColor && (
+                                            <p className="text-xs text-zinc-600">
+                                                Selected: <span className="font-medium text-zinc-900">{selectedColor}</span>
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+
+                                <p className="text-zinc-600">{product.description || "No description available."}</p>
 
                                 <Button
                                     onClick={handleAdd}
                                     className="h-11 rounded-xl w-full"
-                                    disabled={!product.inStock}
+                                    disabled={!product.inStock || mustPickColor}
                                 >
-                                    {added ? "View Cart" : "Add to Cart"}
+                                    {mustPickColor ? "Select a Color" : added ? "View Cart" : "Add to Cart"}
                                 </Button>
 
                                 <div className="grid grid-cols-3 gap-4 pt-4">
