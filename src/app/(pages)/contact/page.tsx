@@ -57,7 +57,7 @@ export default function ContactPage() {
                                 <Clock className="h-5 w-5 text-zinc-900" />
                                 <div>
                                     <p className="text-sm font-medium text-zinc-900">Support Hours</p>
-                                    <p className="text-xs text-zinc-600">Mon–Sat, 10am–8pm</p>
+                                    <p className="text-xs text-zinc-600">Available 24/7, all days</p>
                                 </div>
                             </div>
                         </div>
@@ -122,10 +122,10 @@ export default function ContactPage() {
                                     </p>
                                     <Link
                                         className="font-medium text-primary underline-offset-4 hover:underline"
-                                        href="https://www.google.com/maps?q=Karachi"
+                                        href="https://www.google.com/maps?q=rawalpindi"
                                         target="_blank"
                                     >
-                                        Karachi, Pakistan
+                                        Rawalpindi, Pakistan
                                     </Link>
                                 </div>
 
@@ -184,7 +184,7 @@ export default function ContactPage() {
                                     className="h-full w-full"
                                     loading="lazy"
                                     referrerPolicy="no-referrer-when-downgrade"
-                                    src="https://www.google.com/maps?q=Karachi%20Pakistan&output=embed"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d331348.71072330576!2d72.83540962641833!3d33.465361834742005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38df948974419acb%3A0x984357e1632d30f!2sRawalpindi%2C%20Pakistan!5e0!3m2!1sen!2s!4v1769939289055!5m2!1sen!2s"
                                 />
                             </div>
                         </div>

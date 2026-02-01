@@ -25,17 +25,17 @@ const categories = [
     {
         title: "Men Watches",
         image: "https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=704&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        href: "/category/men",
+        href: "/shop",
     },
     {
         title: "Women Watches",
         image: "https://images.unsplash.com/photo-1736615494527-a0f4a70f1101?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDIzfHx8ZW58MHx8fHx8",
-        href: "/category/women",
+        href: "/shop",
     },
     {
         title: "Sport Watches",
         image: "https://images.unsplash.com/photo-1691439378545-dd6b35ff2f7b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        href: "/category/sport",
+        href: "/shop",
     },
 ];
 
