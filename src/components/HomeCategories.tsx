@@ -28,8 +28,8 @@ const categories = [
         href: "/shop",
     },
     {
-        title: "Women Watches",
-        image: "https://images.unsplash.com/photo-1736615494527-a0f4a70f1101?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDIzfHx8ZW58MHx8fHx8",
+        title: "Couples Watches",
+        image: "https://tmactwfrm3mqjwv9.public.blob.vercel-storage.com/coupleswatch",
         href: "/shop",
     },
     {

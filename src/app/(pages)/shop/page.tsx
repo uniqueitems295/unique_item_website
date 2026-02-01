@@ -23,7 +23,7 @@ import { Autoplay, Pagination } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/pagination"
 
-type Category = "all" | "men" | "women" | "kids" | "sport" | "couplewatches"
+type Category = "all" | "men" | "sport" | "couplewatches"
 type Availability = "all" | "in" | "out"
 
 type Product = {
@@ -53,9 +53,7 @@ type CartItem = {
 const CATEGORIES: { key: Category; label: string }[] = [
     { key: "all", label: "All Watches" },
     { key: "men", label: "Men Watches" },
-    { key: "women", label: "Women Watches" },
     { key: "couplewatches", label: "Couple watches" },
-    { key: "kids", label: "Kids Watches" },
     { key: "sport", label: "Sport Watches" },
 ]
 
@@ -73,8 +71,6 @@ function getMinMax(products: Product[]) {
 function normalizeCategory(v: string): Category {
     const s = v.toLowerCase()
     if (s === "men") return "men"
-    if (s === "women") return "women"
-    if (s === "kids") return "kids"
     if (s === "sport") return "sport"
     if (s === "couplewatches") return "couplewatches"
     return "all"

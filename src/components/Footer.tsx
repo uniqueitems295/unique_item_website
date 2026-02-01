@@ -38,12 +38,12 @@ export default function Footer() {
                                 </li>
                                 <li>
                                     <Link href="/shop" className="hover:text-white">
-                                        Women Watches
+                                        Couples Watches
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/shop" className="hover:text-white">
-                                        Kids Watches
+                                        Sport Watches
                                     </Link>
                                 </li>
                             </ul>
