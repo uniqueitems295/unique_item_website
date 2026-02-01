@@ -18,8 +18,12 @@ import { ArrowUpRight, Filter, Search } from "lucide-react"
 import UserWrapper from "@/app/(wrappers)/userWrapper"
 import { useSearchParams } from "next/navigation"
 
-type Category = "all" | "men" | "women" | "kids" | "sport" | "couplewatches"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay, Pagination } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/pagination"
 
+type Category = "all" | "men" | "women" | "kids" | "sport" | "couplewatches"
 type Availability = "all" | "in" | "out"
 
 type Product = {
@@ -31,7 +35,8 @@ type Product = {
     category: string
     collection: string
     description?: string
-    imageUrl?: string
+    images?: string[]
+    colors?: string[]
     status: "published" | "draft"
     inStock: boolean
 }
@@ -79,6 +84,11 @@ function safeImage(url?: string) {
     return url?.trim() ? url : "/images/placeholder.png"
 }
 
+function getCoverImage(p: Product) {
+    const first = p.images?.[0]?.trim()
+    return safeImage(first)
+}
+
 function readCart(): CartItem[] {
     if (typeof window === "undefined") return []
     try {
@@ -107,6 +117,10 @@ function addToCart(item: Omit<CartItem, "qty">) {
     }
     writeCart(cart)
     return cart
+}
+
+function randInt(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 function SidebarFilters({
@@ -220,39 +234,89 @@ function ProductCard({
     p,
     added,
     onAdd,
+    autoplayDelay,
 }: {
     p: Product
     added: boolean
     onAdd: (p: Product) => void
+    autoplayDelay: number
 }) {
     const discount =
         typeof p.oldPrice === "number" && p.oldPrice > p.price
             ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100)
             : null
 
+    const imgs = (p.images || []).map((u) => safeImage(u))
+    const slides = imgs.length > 0 ? imgs : ["/images/placeholder.png"]
+
+    const colors = Array.isArray(p.colors)
+        ? p.colors.map((c) => String(c).trim()).filter(Boolean)
+        : []
+
     return (
-        <div className="group">
+        <div className="group transition hover:-translate-y-1">
             <div className="relative overflow-hidden rounded-2xl bg-zinc-50">
                 <Link href={`/products/${p.slug}`} className="block">
                     <div className="relative aspect-[4/5] w-full">
-                        <Image
-                            src={safeImage(p.imageUrl)}
-                            alt={p.name}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                        />
+                        <Swiper
+                            modules={[ Autoplay]}
+                            slidesPerView={1}
+                            spaceBetween={0}
+                            loop={slides.length > 1}
+                            autoplay={
+                                slides.length > 1
+                                    ? {
+                                        delay: autoplayDelay,
+                                        disableOnInteraction: false,
+                                        pauseOnMouseEnter: true,
+                                    }
+                                    : false
+                            }
+                            className="h-full w-full"
+                        >
+                            {slides.map((src, idx) => (
+                                <SwiperSlide key={`${p._id}-${idx}`}>
+                                    <div className="relative h-full w-full">
+                                        <Image
+                                            src={src}
+                                            alt={p.name}
+                                            fill
+                                            className="object-cover transition-transform duration-500]"
+                                        />
+                                    </div>
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
                     </div>
                 </Link>
 
                 {discount !== null && (
-                    <div className="absolute left-3 top-3 rounded-full bg-red-600 px-3 py-2 text-xs font-semibold text-white">
+                    <div className="absolute left-3 top-3 rounded-full bg-red-600 px-3 py-2 text-xs font-semibold text-white z-10">
                         -{discount}%
                     </div>
                 )}
 
                 {!p.inStock && (
-                    <div className="absolute left-3 top-12 rounded-full bg-zinc-600 px-3 py-2 text-xs font-medium text-white">
+                    <div className="absolute left-3 top-12 rounded-full bg-zinc-600 px-3 py-2 text-xs font-medium text-white z-10">
                         Sold out
+                    </div>
+                )}
+
+                {colors.length > 0 && (
+                    <div className="absolute right-3 top-3 z-10 flex flex-wrap justify-end gap-1">
+                        {colors.slice(0, 3).map((c) => (
+                            <span
+                                key={`${p._id}-${c}`}
+                                className="rounded-full bg-white/90 px-2 py-1 text-[10px] font-medium text-zinc-800"
+                            >
+                                {c}
+                            </span>
+                        ))}
+                        {colors.length > 3 && (
+                            <span className="rounded-full bg-white/90 px-2 py-1 text-[10px] font-medium text-zinc-800">
+                                +{colors.length - 3}
+                            </span>
+                        )}
                     </div>
                 )}
             </div>
@@ -261,6 +325,13 @@ function ProductCard({
                 <Link href={`/products/${p.slug}`} className="line-clamp-2 text-sm font-medium text-zinc-900 hover:underline">
                     {p.name}
                 </Link>
+
+                {colors.length > 0 && (
+                    <p className="mt-1 line-clamp-1 text-xs text-zinc-600">
+                        Colors: {colors.slice(0, 4).join(", ")}
+                        {colors.length > 4 ? "…" : ""}
+                    </p>
+                )}
 
                 <div className="mt-2 flex items-center gap-2">
                     {typeof p.oldPrice === "number" && (
@@ -299,7 +370,6 @@ function ProductCard({
     )
 }
 
-/** ✅ This component can safely use useSearchParams */
 function ShopInner() {
     const searchParams = useSearchParams()
 
@@ -313,6 +383,7 @@ function ShopInner() {
     const [price, setPrice] = React.useState<number[]>([0, 10000])
 
     const [addedIds, setAddedIds] = React.useState<Record<string, boolean>>({})
+    const [autoplayMs, setAutoplayMs] = React.useState<Record<string, number>>({})
 
     const { min, max } = React.useMemo(() => getMinMax(products), [products])
 
@@ -331,6 +402,10 @@ function ShopInner() {
             const list: Product[] = res.data?.products || []
             const publishedOnly = list.filter((p) => p.status === "published")
             setProducts(publishedOnly)
+
+            const auto: Record<string, number> = {}
+            for (const p of publishedOnly) auto[p._id] = randInt(4000, 6500)
+            setAutoplayMs(auto)
         } catch (e: any) {
             setError(e?.response?.data?.message || "Failed to load products")
         } finally {
@@ -347,7 +422,6 @@ function ShopInner() {
         setPrice([min, max])
     }, [min, max])
 
-    /** ✅ read q from URL */
     React.useEffect(() => {
         const q = searchParams.get("q") || ""
         setQuery(q)
@@ -387,7 +461,7 @@ function ShopInner() {
             slug: p.slug,
             name: p.name,
             price: p.price,
-            imageUrl: safeImage(p.imageUrl),
+            imageUrl: getCoverImage(p),
         })
         setAddedIds((prev) => ({ ...prev, [p._id]: true }))
         toast("Added to cart.")
@@ -487,7 +561,13 @@ function ShopInner() {
                             ) : (
                                 <div className="mt-6 grid gap-5 gap-y-10 md:gap-y-14 sm:grid-cols-2 xl:grid-cols-3">
                                     {filtered.map((p) => (
-                                        <ProductCard key={p._id} p={p} added={Boolean(addedIds[p._id])} onAdd={handleAdd} />
+                                        <ProductCard
+                                            key={p._id}
+                                            p={p}
+                                            added={Boolean(addedIds[p._id])}
+                                            onAdd={handleAdd}
+                                            autoplayDelay={autoplayMs[p._id] ?? 5000}
+                                        />
                                     ))}
                                 </div>
                             )}
@@ -509,7 +589,6 @@ function ShopInner() {
     )
 }
 
-/** ✅ Page exported with Suspense wrapper (fixes prerender build error) */
 export default function ShopPage() {
     return (
         <Suspense fallback={<div className="p-10">Loading...</div>}>

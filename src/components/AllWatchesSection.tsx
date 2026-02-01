@@ -10,6 +10,11 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay, Pagination } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/pagination"
+
 type Product = {
     _id: string
     name: string
@@ -19,7 +24,8 @@ type Product = {
     category: string
     collection: string
     description?: string
-    imageUrl?: string
+    images?: string[]
+    colors?: string[]
     status: "published" | "draft"
     inStock: boolean
 }
@@ -40,6 +46,11 @@ function formatPKR(value: number) {
 
 function safeImage(url?: string) {
     return url?.trim() ? url : "/images/placeholder.png"
+}
+
+function getCoverImage(p: Product) {
+    const first = p.images?.[0]?.trim()
+    return safeImage(first)
 }
 
 function readCart(): CartItem[] {
@@ -72,10 +83,15 @@ function addToCart(item: Omit<CartItem, "qty">) {
     return cart
 }
 
+function randInt(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
 export default function AllWatchesSection() {
     const [loading, setLoading] = React.useState(true)
     const [products, setProducts] = React.useState<Product[]>([])
     const [addedIds, setAddedIds] = React.useState<Record<string, boolean>>({})
+    const [autoplayMs, setAutoplayMs] = React.useState<Record<string, number>>({})
 
     const syncAddedState = React.useCallback(() => {
         const cart = readCart()
@@ -90,7 +106,13 @@ export default function AllWatchesSection() {
             const res = await axios.get("/api/products")
             const list: Product[] = res.data?.products || []
             const published = list.filter((p) => p.status === "published")
-            setProducts(published.slice(0, 8))
+            const slice = published.slice(0, 8)
+
+            setProducts(slice)
+
+            const auto: Record<string, number> = {}
+            for (const p of slice) auto[p._id] = randInt(4000, 6500)
+            setAutoplayMs(auto)
         } catch (e: any) {
             toast(e?.response?.data?.message || "Failed to load products")
             setProducts([])
@@ -117,7 +139,7 @@ export default function AllWatchesSection() {
             slug: p.slug,
             name: p.name,
             price: p.price,
-            imageUrl: safeImage(p.imageUrl),
+            imageUrl: getCoverImage(p),
         })
         setAddedIds((prev) => ({ ...prev, [p._id]: true }))
         toast("Added to cart.")
@@ -163,29 +185,54 @@ export default function AllWatchesSection() {
                                     : null
 
                             const added = Boolean(addedIds[p._id])
+                            const imgs = (p.images || []).map((u) => safeImage(u))
+                            const slides = imgs.length > 0 ? imgs : ["/images/placeholder.png"]
 
                             return (
-                                <div key={p._id} className="group">
-                                    <div className="relative overflow-hidden rounded-2xl bg-zinc-50">
+                                <div key={p._id} className="group transition duration-300 hover:-translate-y-1">
+                                    <div className="relative overflow-hidden  rounded-2xl bg-zinc-50">
                                         <Link href={`/products/${p.slug}`} className="block">
                                             <div className="relative aspect-[4/5] w-full">
-                                                <Image
-                                                    src={safeImage(p.imageUrl)}
-                                                    alt={p.name}
-                                                    fill
-                                                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                                                />
+                                                <Swiper
+                                                    modules={[Autoplay]}
+                                                    slidesPerView={1}
+                                                    spaceBetween={0}
+                                                    loop={slides.length > 1}
+                                                    autoplay={
+                                                        slides.length > 1
+                                                            ? {
+                                                                delay: autoplayMs[p._id] ?? 5000,
+                                                                disableOnInteraction: false,
+                                                                pauseOnMouseEnter: true,
+                                                            }
+                                                            : false
+                                                    }
+                                                    className="h-full w-full"
+                                                >
+                                                    {slides.map((src, idx) => (
+                                                        <SwiperSlide key={`${p._id}-${idx}`}>
+                                                            <div className="relative h-full w-full">
+                                                                <Image
+                                                                    src={src}
+                                                                    alt={p.name}
+                                                                    fill
+                                                                    className="object-cover transition-transform duration-500 "
+                                                                />
+                                                            </div>
+                                                        </SwiperSlide>
+                                                    ))}
+                                                </Swiper>
                                             </div>
                                         </Link>
 
                                         {discount !== null && (
-                                            <div className="absolute left-3 top-3 grid place-items-center rounded-full bg-red-600 px-4 py-3 text-sm font-semibold text-white">
+                                            <div className="absolute left-3 top-3 grid place-items-center rounded-full bg-red-600 px-4 py-3 text-sm font-semibold text-white z-10">
                                                 -{discount}%
                                             </div>
                                         )}
 
                                         {!p.inStock && (
-                                            <div className="absolute left-3 top-16 grid place-items-center rounded-full bg-zinc-500 px-4 py-3 text-sm font-medium text-white">
+                                            <div className="absolute left-3 top-16 grid place-items-center rounded-full bg-zinc-500 px-4 py-3 text-sm font-medium text-white z-10">
                                                 Sold out
                                             </div>
                                         )}

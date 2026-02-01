@@ -78,9 +78,9 @@ export default function ContactPage() {
                                     </p>
                                     <Link
                                         className="font-medium text-primary underline-offset-4 hover:underline"
-                                        href="mailto:support@uniqueitems.pk"
+                                        href="mailto:unique.items295@gmail.com"
                                     >
-                                        support@uniqueitems.pk
+                                        unique.items295@gmail.com
                                     </Link>
                                 </div>
 

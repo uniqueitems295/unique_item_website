@@ -14,7 +14,8 @@ type ProductDoc = {
     category: string
     collection: string
     description?: string
-    imageUrl?: string
+    images?: string[]
+    colors?: string[]
     status: Status
     inStock: boolean
 }
@@ -62,7 +63,8 @@ export async function PATCH(req: Request, ctx: Ctx) {
             "category",
             "collection",
             "description",
-            "imageUrl",
+            "images",
+            "colors",
             "status",
             "inStock",
         ] as const
@@ -82,6 +84,14 @@ export async function PATCH(req: Request, ctx: Ctx) {
             updateDoc.oldPrice = updateDoc.oldPrice === null ? null : Number(updateDoc.oldPrice)
         }
 
+        if (updateDoc.images !== undefined) {
+            updateDoc.images = Array.isArray(updateDoc.images) ? updateDoc.images : []
+        }
+
+        if (updateDoc.colors !== undefined) {
+            updateDoc.colors = Array.isArray(updateDoc.colors) ? updateDoc.colors : []
+        }
+
         const mongo = await client.connect()
         const db = mongo.db()
         const products = db.collection<Product>("products")
@@ -94,10 +104,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
 
         const product = await products.findOne(idFilter(id))
 
-        return NextResponse.json(
-            { message: "Product updated successfully", product },
-            { status: 200 }
-        )
+        return NextResponse.json({ message: "Product updated successfully", product }, { status: 200 })
     } catch (error: any) {
         return NextResponse.json(
             { message: "Server error", error: error?.message || "Unknown error" },

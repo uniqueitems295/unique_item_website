@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import axios from "axios"
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { upload } from "@vercel/blob/client"
 import imageCompression from "browser-image-compression"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,7 @@ import { toast } from "sonner"
 
 type Status = "published" | "draft"
 
-const MAX_IMAGE_BYTES = 800 * 1024 // ✅ 800KB (change later if you want)
+const MAX_IMAGE_BYTES = 800 * 1024
 const MAX_DIMENSION = 1600
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
@@ -47,9 +47,13 @@ export default function AddNewProductPage() {
 
     const [loading, setLoading] = useState(false)
     const [uploading, setUploading] = useState(false)
-    const [imageUrl, setImageUrl] = useState("")
+
+    const [images, setImages] = useState<string[]>([])
     const [imageError, setImageError] = useState<string | null>(null)
     const [imageInfo, setImageInfo] = useState<{ before: number; after: number } | null>(null)
+
+    const [colorInput, setColorInput] = useState("")
+    const [colors, setColors] = useState<string[]>([])
 
     const [formData, setFormData] = useState({
         name: "",
@@ -61,6 +65,8 @@ export default function AddNewProductPage() {
         status: "published" as Status,
         inStock: true,
     })
+
+    const coverImage = useMemo(() => images?.[0] || "", [images])
 
     const resetFileInput = () => {
         if (fileRef.current) fileRef.current.value = ""
@@ -75,8 +81,8 @@ export default function AddNewProductPage() {
         fileRef.current?.click()
     }
 
-    const removeImage = () => {
-        setImageUrl("")
+    const removeImageAt = (index: number) => {
+        setImages((prev) => prev.filter((_, i) => i !== index))
         setImageError(null)
         setImageInfo(null)
         resetFileInput()
@@ -117,10 +123,8 @@ export default function AddNewProductPage() {
         try {
             setUploading(true)
 
-            // ✅ compress automatically if > 800KB
             const compressed = await compressIfNeeded(file)
 
-            // ✅ if still too big (rare) — block
             if (compressed.size > MAX_IMAGE_BYTES) {
                 const msg = `Image is still too large after compression (${prettySize(
                     compressed.size
@@ -140,7 +144,7 @@ export default function AddNewProductPage() {
                 handleUploadUrl: "/api/upload",
             })
 
-            setImageUrl(blob.url)
+            setImages((prev) => [...prev, blob.url])
             toast("Image uploaded ✅")
         } catch (e: any) {
             const msg = e?.message || "Image upload failed"
@@ -150,6 +154,19 @@ export default function AddNewProductPage() {
         } finally {
             setUploading(false)
         }
+    }
+
+    const normalizeColor = (c: string) => c.trim().toLowerCase()
+
+    const addColor = () => {
+        const v = normalizeColor(colorInput)
+        if (!v) return
+        setColors((prev) => (prev.includes(v) ? prev : [...prev, v]))
+        setColorInput("")
+    }
+
+    const removeColor = (c: string) => {
+        setColors((prev) => prev.filter((x) => x !== c))
     }
 
     const handleSubmit = async () => {
@@ -172,6 +189,10 @@ export default function AddNewProductPage() {
                 toast("Collection is required")
                 return
             }
+            if (images.length === 0) {
+                toast("Please upload at least one product image")
+                return
+            }
 
             const baseSlug = slugify(formData.name)
             const uniqueSlug = `${baseSlug}-${Date.now()}`
@@ -184,7 +205,8 @@ export default function AddNewProductPage() {
                 category: formData.category,
                 collection: formData.collection,
                 description: formData.description,
-                imageUrl,
+                images,
+                colors,
                 status: formData.status,
                 inStock: formData.inStock,
             })
@@ -201,7 +223,9 @@ export default function AddNewProductPage() {
                 status: "published",
                 inStock: true,
             })
-            setImageUrl("")
+            setImages([])
+            setColors([])
+            setColorInput("")
             setImageError(null)
             setImageInfo(null)
             resetFileInput()
@@ -335,6 +359,47 @@ export default function AddNewProductPage() {
                                     />
                                 </div>
 
+                                <div className="space-y-2">
+                                    <Label>Colors</Label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            value={colorInput}
+                                            onChange={(e) => setColorInput(e.target.value)}
+                                            placeholder='Type a color and press "Add" (e.g., black)'
+                                            className="h-11"
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault()
+                                                    addColor()
+                                                }
+                                            }}
+                                        />
+                                        <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={addColor}>
+                                            Add
+                                        </Button>
+                                    </div>
+
+                                    {colors.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                            {colors.map((c) => (
+                                                <Badge key={c} variant="secondary" className="rounded-full px-3 py-1">
+                                                    {c}
+                                                    <button
+                                                        type="button"
+                                                        className="ml-2 inline-flex items-center"
+                                                        onClick={() => removeColor(c)}
+                                                        aria-label={`Remove ${c}`}
+                                                    >
+                                                        <X className="h-3.5 w-3.5" />
+                                                    </button>
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-zinc-500">No colors added yet.</p>
+                                    )}
+                                </div>
+
                                 <div className="rounded-2xl border bg-zinc-50 p-4">
                                     <p className="text-xs text-zinc-500">Slug (auto-generated)</p>
                                     <p className="mt-1 text-sm font-medium text-zinc-900">
@@ -347,7 +412,7 @@ export default function AddNewProductPage() {
                         <div className="space-y-6">
                             <Card className="rounded-2xl">
                                 <CardHeader>
-                                    <CardTitle>Product Image</CardTitle>
+                                    <CardTitle>Product Images</CardTitle>
                                 </CardHeader>
 
                                 <CardContent className="space-y-4">
@@ -368,30 +433,52 @@ export default function AddNewProductPage() {
                                             (imageError ? "border-red-500" : "")
                                         }
                                     >
-                                        {imageUrl ? (
+                                        {coverImage ? (
                                             <>
-                                                <img src={imageUrl} alt="Product" className="h-full w-full object-cover" />
-                                                <button
-                                                    type="button"
-                                                    onClick={removeImage}
-                                                    className="absolute right-3 top-3 rounded-full bg-white/90 p-2"
-                                                    aria-label="Remove image"
-                                                >
-                                                    <X className="h-4 w-4" />
-                                                </button>
+                                                <img src={coverImage} alt="Cover" className="h-full w-full object-cover" />
+                                                <div className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs text-zinc-800">
+                                                    Cover (first image)
+                                                </div>
                                             </>
                                         ) : (
                                             <div className="text-center">
                                                 <UploadIcon className="mx-auto h-6 w-6 text-zinc-500" />
-                                                <p className="mt-2 text-sm text-zinc-600">Upload product image</p>
+                                                <p className="mt-2 text-sm text-zinc-600">Upload product images</p>
                                                 <p className="text-xs text-zinc-500">
-                                                    JPG/PNG/WEBP — auto-compress to ≤ {prettySize(MAX_IMAGE_BYTES)}
+                                                    The first uploaded image will be used as the cover in your UI.
                                                 </p>
                                             </div>
                                         )}
                                     </div>
 
-                                    {/* ✅ show message BEFORE upload when file is big (toast) + show info after */}
+                                    {images.length > 0 && (
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-zinc-600">
+                                                Uploaded Images ({images.length}) — first one is the cover
+                                            </p>
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {images.map((url, idx) => (
+                                                    <div key={`${url}-${idx}`} className="relative overflow-hidden rounded-xl border bg-white">
+                                                        <img src={url} alt={`Image ${idx + 1}`} className="h-20 w-full object-cover" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeImageAt(idx)}
+                                                            className="absolute right-1 top-1 rounded-full bg-white/90 p-1.5"
+                                                            aria-label="Remove image"
+                                                        >
+                                                            <X className="h-3.5 w-3.5" />
+                                                        </button>
+                                                        {idx === 0 && (
+                                                            <div className="absolute left-1 top-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] text-zinc-800">
+                                                                Cover
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {imageInfo && (
                                         <div className="rounded-xl border bg-white px-4 py-3 text-sm text-zinc-700">
                                             Image size:{" "}
@@ -418,7 +505,7 @@ export default function AddNewProductPage() {
                                         onClick={handlePickImage}
                                         disabled={uploading}
                                     >
-                                        {uploading ? "Uploading..." : "Choose Image"}
+                                        {uploading ? "Uploading..." : "Add Image"}
                                     </Button>
                                 </CardContent>
                             </Card>

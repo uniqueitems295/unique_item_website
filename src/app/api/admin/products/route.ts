@@ -10,7 +10,8 @@ type ProductPayload = {
     category: string
     collection: string
     description?: string
-    imageUrl?: string
+    images?: string[]
+    colors?: string[]
     status: "published" | "draft"
     inStock: boolean
 }
@@ -81,7 +82,8 @@ export async function POST(req: Request) {
             category,
             collection,
             description,
-            imageUrl,
+            images,
+            colors,
             status,
             inStock,
         } = body
@@ -107,7 +109,8 @@ export async function POST(req: Request) {
             category,
             collection,
             description: description ?? "",
-            imageUrl: imageUrl ?? "",
+            images: Array.isArray(images) ? images : [],
+            colors: Array.isArray(colors) ? colors : [],
             status: status ?? "published",
             inStock: inStock ?? true,
         }

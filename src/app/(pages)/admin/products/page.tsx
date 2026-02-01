@@ -25,7 +25,8 @@ type Product = {
     category: string
     collection: string
     description?: string
-    imageUrl?: string
+    images?: string[]
+    colors?: string[]
     status: "published" | "draft"
     inStock: boolean
 }
@@ -143,40 +144,19 @@ export default function ManageProductsPage() {
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                            <Button
-                                variant="outline"
-                                className="rounded-xl"
-                                onClick={() => setFilter("all")}
-                            >
+                            <Button variant="outline" className="rounded-xl" onClick={() => setFilter("all")}>
                                 All
                             </Button>
-                            <Button
-                                variant="outline"
-                                className="rounded-xl"
-                                onClick={() => setFilter("published")}
-                            >
+                            <Button variant="outline" className="rounded-xl" onClick={() => setFilter("published")}>
                                 Published
                             </Button>
-                            <Button
-                                variant="outline"
-                                className="rounded-xl"
-                                onClick={() => setFilter("draft")}
-                            >
+                            <Button variant="outline" className="rounded-xl" onClick={() => setFilter("draft")}>
                                 Draft
                             </Button>
-                            <Button
-                                variant="outline"
-                                className="rounded-xl"
-                                onClick={() => setFilter("out")}
-                            >
+                            <Button variant="outline" className="rounded-xl" onClick={() => setFilter("out")}>
                                 Out of stock
                             </Button>
-                            <Button
-                                variant="outline"
-                                className="rounded-xl"
-                                onClick={fetchProducts}
-                                disabled={loading}
-                            >
+                            <Button variant="outline" className="rounded-xl" onClick={fetchProducts} disabled={loading}>
                                 Refresh
                             </Button>
                         </div>
@@ -208,7 +188,8 @@ export default function ManageProductsPage() {
                                 {filtered.map((p) => {
                                     const stockLabel = p.inStock ? "In Stock" : "Out of Stock"
                                     const statusLabel = p.status === "published" ? "Published" : "Draft"
-                                    const img = p.imageUrl?.trim() ? p.imageUrl : "/images/placeholder.png"
+                                    const img =
+                                        p.images?.[0]?.trim() ? p.images[0] : "/images/placeholder.png"
 
                                     return (
                                         <div
@@ -222,6 +203,7 @@ export default function ManageProductsPage() {
                                             <div className="space-y-1">
                                                 <p className="text-sm font-semibold text-zinc-900">{p.name}</p>
                                                 <p className="text-xs text-zinc-500">ID: {p._id}</p>
+
                                                 <div className="md:hidden flex flex-wrap gap-2 pt-2">
                                                     <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-700">
                                                         {p.category}
@@ -235,12 +217,20 @@ export default function ManageProductsPage() {
                                                     <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-700">
                                                         {statusLabel}
                                                     </span>
+                                                    {Array.isArray(p.colors) && p.colors.length > 0 && (
+                                                        <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-700">
+                                                            Colors: {p.colors.length}
+                                                        </span>
+                                                    )}
+                                                    {Array.isArray(p.images) && p.images.length > 1 && (
+                                                        <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-700">
+                                                            Images: {p.images.length}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
 
-                                            <div className="hidden md:block text-sm text-zinc-700">
-                                                {p.category}
-                                            </div>
+                                            <div className="hidden md:block text-sm text-zinc-700">{p.category}</div>
 
                                             <div className="hidden md:block text-sm font-semibold text-zinc-900">
                                                 {formatPKR(p.price)}
@@ -250,9 +240,7 @@ export default function ManageProductsPage() {
                                                 <span
                                                     className={
                                                         "inline-flex rounded-full px-3 py-1 text-xs font-medium " +
-                                                        (p.inStock
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-red-100 text-red-700")
+                                                        (p.inStock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")
                                                     }
                                                 >
                                                     {stockLabel}
@@ -263,9 +251,7 @@ export default function ManageProductsPage() {
                                                 <span
                                                     className={
                                                         "inline-flex rounded-full px-3 py-1 text-xs font-medium " +
-                                                        (p.status === "published"
-                                                            ? "bg-blue-100 text-blue-700"
-                                                            : "bg-zinc-100 text-zinc-700")
+                                                        (p.status === "published" ? "bg-blue-100 text-blue-700" : "bg-zinc-100 text-zinc-700")
                                                     }
                                                 >
                                                     {statusLabel}
@@ -282,20 +268,14 @@ export default function ManageProductsPage() {
 
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem asChild>
-                                                            <Link
-                                                                href={`/products/${p.slug}`}
-                                                                className="flex items-center gap-2"
-                                                            >
+                                                            <Link href={`/products/${p.slug}`} className="flex items-center gap-2">
                                                                 <Eye className="h-4 w-4" />
                                                                 View
                                                             </Link>
                                                         </DropdownMenuItem>
 
                                                         <DropdownMenuItem asChild>
-                                                            <Link
-                                                                href={`/admin/products/${p._id}/edit`}
-                                                                className="flex items-center gap-2"
-                                                            >
+                                                            <Link href={`/admin/products/${p._id}/edit`} className="flex items-center gap-2">
                                                                 <Pencil className="h-4 w-4" />
                                                                 Edit
                                                             </Link>
@@ -317,9 +297,7 @@ export default function ManageProductsPage() {
                                 })}
 
                                 {!loading && filtered.length === 0 && (
-                                    <div className="px-6 py-10 text-sm text-zinc-600">
-                                        No products found.
-                                    </div>
+                                    <div className="px-6 py-10 text-sm text-zinc-600">No products found.</div>
                                 )}
                             </div>
                         </CardContent>

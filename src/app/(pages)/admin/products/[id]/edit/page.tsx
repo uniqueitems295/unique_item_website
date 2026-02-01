@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import axios from "axios"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { upload } from "@vercel/blob/client"
 import { Button } from "@/components/ui/button"
@@ -31,7 +31,8 @@ type Product = {
     category: string
     collection: string
     description?: string
-    imageUrl?: string
+    images?: string[]
+    colors?: string[]
     status: Status
     inStock: boolean
 }
@@ -47,7 +48,10 @@ export default function EditProductPage() {
     const [saving, setSaving] = useState(false)
     const [uploading, setUploading] = useState(false)
 
-    const [imageUrl, setImageUrl] = useState("")
+    const [images, setImages] = useState<string[]>([])
+    const [colorInput, setColorInput] = useState("")
+    const [colors, setColors] = useState<string[]>([])
+
     const [formData, setFormData] = useState({
         name: "",
         price: "",
@@ -58,6 +62,8 @@ export default function EditProductPage() {
         status: "published" as Status,
         inStock: true,
     })
+
+    const coverImage = useMemo(() => images?.[0] || "", [images])
 
     const fetchProduct = async () => {
         try {
@@ -75,7 +81,9 @@ export default function EditProductPage() {
                 status: p.status || "published",
                 inStock: Boolean(p.inStock),
             })
-            setImageUrl(p.imageUrl || "")
+
+            setImages(Array.isArray(p.images) ? p.images : [])
+            setColors(Array.isArray(p.colors) ? p.colors : [])
         } catch (e: any) {
             alert(e?.response?.data?.message || "Failed to load product")
         } finally {
@@ -85,11 +93,10 @@ export default function EditProductPage() {
 
     useEffect(() => {
         if (id) fetchProduct()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id])
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = e.target
         setFormData((prev) => ({ ...prev, [id]: value }))
     }
@@ -101,21 +108,36 @@ export default function EditProductPage() {
     const handleUploadImage = async (file: File) => {
         try {
             setUploading(true)
-            const blob = await upload(file.name, file, {
+            const uniqueName = `${crypto.randomUUID()}-${file.name.replace(/\s+/g, "-")}`
+            const blob = await upload(uniqueName, file, {
                 access: "public",
                 handleUploadUrl: "/api/upload",
             })
-            setImageUrl(blob.url)
+            setImages((prev) => [...prev, blob.url])
         } catch (e: any) {
             alert(e?.message || "Image upload failed")
         } finally {
             setUploading(false)
+            if (fileRef.current) fileRef.current.value = ""
         }
     }
 
-    const removeImage = () => {
-        setImageUrl("")
+    const removeImageAt = (index: number) => {
+        setImages((prev) => prev.filter((_, i) => i !== index))
         if (fileRef.current) fileRef.current.value = ""
+    }
+
+    const normalizeColor = (c: string) => c.trim().toLowerCase()
+
+    const addColor = () => {
+        const v = normalizeColor(colorInput)
+        if (!v) return
+        setColors((prev) => (prev.includes(v) ? prev : [...prev, v]))
+        setColorInput("")
+    }
+
+    const removeColor = (c: string) => {
+        setColors((prev) => prev.filter((x) => x !== c))
     }
 
     const handleSave = async () => {
@@ -134,7 +156,8 @@ export default function EditProductPage() {
                 category: formData.category,
                 collection: formData.collection,
                 description: formData.description,
-                imageUrl,
+                images,
+                colors,
                 status: formData.status,
                 inStock: formData.inStock,
             })
@@ -194,12 +217,7 @@ export default function EditProductPage() {
                             <CardContent className="space-y-8">
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Product Name</Label>
-                                    <Input
-                                        id="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        className="h-11"
-                                    />
+                                    <Input id="name" value={formData.name} onChange={handleChange} className="h-11" />
                                 </div>
 
                                 <div className="grid gap-6 md:grid-cols-2">
@@ -231,9 +249,7 @@ export default function EditProductPage() {
                                         <Label>Category</Label>
                                         <Select
                                             value={formData.category}
-                                            onValueChange={(v) =>
-                                                setFormData((p) => ({ ...p, category: v }))
-                                            }
+                                            onValueChange={(v) => setFormData((p) => ({ ...p, category: v }))}
                                         >
                                             <SelectTrigger className="h-11">
                                                 <SelectValue placeholder="Select category" />
@@ -252,9 +268,7 @@ export default function EditProductPage() {
                                         <Label>Collection</Label>
                                         <Select
                                             value={formData.collection}
-                                            onValueChange={(v) =>
-                                                setFormData((p) => ({ ...p, collection: v }))
-                                            }
+                                            onValueChange={(v) => setFormData((p) => ({ ...p, collection: v }))}
                                         >
                                             <SelectTrigger className="h-11">
                                                 <SelectValue placeholder="Select collection" />
@@ -278,14 +292,56 @@ export default function EditProductPage() {
                                         className="min-h-[120px]"
                                     />
                                 </div>
+
+                                <div className="space-y-2">
+                                    <Label>Colors</Label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            value={colorInput}
+                                            onChange={(e) => setColorInput(e.target.value)}
+                                            placeholder='Type a color and press "Add" (e.g., black)'
+                                            className="h-11"
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault()
+                                                    addColor()
+                                                }
+                                            }}
+                                        />
+                                        <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={addColor}>
+                                            Add
+                                        </Button>
+                                    </div>
+
+                                    {colors.length > 0 ? (
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                            {colors.map((c) => (
+                                                <Badge key={c} variant="secondary" className="rounded-full px-3 py-1">
+                                                    {c}
+                                                    <button
+                                                        type="button"
+                                                        className="ml-2 inline-flex items-center"
+                                                        onClick={() => removeColor(c)}
+                                                        aria-label={`Remove ${c}`}
+                                                    >
+                                                        <X className="h-3.5 w-3.5" />
+                                                    </button>
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-zinc-500">No colors added yet.</p>
+                                    )}
+                                </div>
                             </CardContent>
                         </Card>
 
                         <div className="space-y-6">
                             <Card className="rounded-2xl">
                                 <CardHeader>
-                                    <CardTitle>Product Image</CardTitle>
+                                    <CardTitle>Product Images</CardTitle>
                                 </CardHeader>
+
                                 <CardContent className="space-y-4">
                                     <input
                                         ref={fileRef}
@@ -299,18 +355,17 @@ export default function EditProductPage() {
                                     />
 
                                     <div className="relative flex h-40 items-center justify-center rounded-2xl border border-dashed bg-zinc-50 overflow-hidden">
-                                        {imageUrl ? (
+                                        {coverImage ? (
                                             <>
-                                                <img
-                                                    src={imageUrl}
-                                                    alt="Product"
-                                                    className="h-full w-full object-cover"
-                                                />
+                                                <img src={coverImage} alt="Cover" className="h-full w-full object-cover" />
+                                                <div className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs text-zinc-800">
+                                                    Cover (first image)
+                                                </div>
                                                 <button
                                                     type="button"
-                                                    onClick={removeImage}
+                                                    onClick={() => removeImageAt(0)}
                                                     className="absolute right-3 top-3 rounded-full bg-white/90 p-2"
-                                                    aria-label="Remove image"
+                                                    aria-label="Remove cover image"
                                                 >
                                                     <X className="h-4 w-4" />
                                                 </button>
@@ -318,15 +373,44 @@ export default function EditProductPage() {
                                         ) : (
                                             <div className="text-center">
                                                 <UploadIcon className="mx-auto h-6 w-6 text-zinc-500" />
-                                                <p className="mt-2 text-sm text-zinc-600">
-                                                    Upload product image
-                                                </p>
+                                                <p className="mt-2 text-sm text-zinc-600">Upload product images</p>
                                                 <p className="text-xs text-zinc-500">
-                                                    PNG, JPG up to 5MB
+                                                    The first image is used as the cover in your UI.
                                                 </p>
                                             </div>
                                         )}
                                     </div>
+
+                                    {images.length > 0 && (
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-zinc-600">
+                                                Uploaded Images ({images.length}) — first one is the cover
+                                            </p>
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {images.map((url, idx) => (
+                                                    <div
+                                                        key={`${url}-${idx}`}
+                                                        className="relative overflow-hidden rounded-xl border bg-white"
+                                                    >
+                                                        <img src={url} alt={`Image ${idx + 1}`} className="h-20 w-full object-cover" />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeImageAt(idx)}
+                                                            className="absolute right-1 top-1 rounded-full bg-white/90 p-1.5"
+                                                            aria-label="Remove image"
+                                                        >
+                                                            <X className="h-3.5 w-3.5" />
+                                                        </button>
+                                                        {idx === 0 && (
+                                                            <div className="absolute left-1 top-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] text-zinc-800">
+                                                                Cover
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <Button
                                         type="button"
@@ -335,7 +419,7 @@ export default function EditProductPage() {
                                         onClick={handlePickImage}
                                         disabled={uploading}
                                     >
-                                        {uploading ? "Uploading..." : "Choose Image"}
+                                        {uploading ? "Uploading..." : "Add Image"}
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -344,14 +428,13 @@ export default function EditProductPage() {
                                 <CardHeader>
                                     <CardTitle>Product Status</CardTitle>
                                 </CardHeader>
+
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
                                         <Label>Visibility</Label>
                                         <Select
                                             value={formData.status}
-                                            onValueChange={(v: Status) =>
-                                                setFormData((p) => ({ ...p, status: v }))
-                                            }
+                                            onValueChange={(v: Status) => setFormData((p) => ({ ...p, status: v }))}
                                         >
                                             <SelectTrigger className="h-11">
                                                 <SelectValue placeholder="Select visibility" />
@@ -367,9 +450,7 @@ export default function EditProductPage() {
                                         <Label>Stock</Label>
                                         <Select
                                             value={formData.inStock ? "in" : "out"}
-                                            onValueChange={(v) =>
-                                                setFormData((p) => ({ ...p, inStock: v === "in" }))
-                                            }
+                                            onValueChange={(v) => setFormData((p) => ({ ...p, inStock: v === "in" }))}
                                         >
                                             <SelectTrigger className="h-11">
                                                 <SelectValue placeholder="Select stock" />

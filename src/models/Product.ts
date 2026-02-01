@@ -8,7 +8,8 @@ export interface IProduct {
     category: string;
     collection: string;
     description?: string;
-    imageUrl?: string;
+    images?: string[];
+    colors?: string[];
     inStock: boolean;
     isPublished: boolean;
 }
@@ -56,9 +57,14 @@ const ProductSchema = new Schema<IProduct>(
             default: "",
         },
 
-        imageUrl: {
-            type: String,
-            default: "",
+        images: {
+            type: [String],
+            default: [],
+        },
+
+        colors: {
+            type: [String],
+            default: [],
         },
 
         inStock: {
@@ -72,7 +78,7 @@ const ProductSchema = new Schema<IProduct>(
         },
     },
     {
-        timestamps: false, // ❌ no createdAt / updatedAt
+        timestamps: true,
     }
 );
 

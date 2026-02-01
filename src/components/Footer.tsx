@@ -84,36 +84,24 @@ export default function Footer() {
                             <ul className="space-y-4 text-zinc-300">
                                 <li className="flex items-center gap-2">
                                     <Mail className="h-4 w-4" />
-                                    support@uniqueitems.pk
+                                    unique.items295@gmail.com
                                 </li>
                                 <li className="flex items-center gap-2">
                                     <Phone className="h-4 w-4" />
-                                    +92 300 1234567
+                                    0319 1994293
                                 </li>
                                 <li className="flex gap-3 pt-2">
                                     <Link
-                                        href="#"
+                                        href="https://www.facebook.com/share/1CEQiWFhhT/"
                                         className="rounded-full transition-all bg-zinc-800 p-4 hover:bg-white hover:text-zinc-900"
                                     >
                                         <Facebook className="h-5 w-5" />
                                     </Link>
                                     <Link
-                                        href="#"
+                                        href="https://www.instagram.com/uniqueitems295?igsh=MXgyNWk0OWF4dHl5YQ=="
                                         className="rounded-full transition-all bg-zinc-800 p-4 hover:bg-white hover:text-zinc-900"
                                     >
                                         <Instagram className="h-5 w-5" />
-                                    </Link>
-                                    <Link
-                                        href="#"
-                                        className="rounded-full transition-all bg-zinc-800 p-4 hover:bg-white hover:text-zinc-900"
-                                    >
-                                        <LucideTwitter className="h-5 w-5" />
-                                    </Link>
-                                    <Link
-                                        href="#"
-                                        className="rounded-full transition-all bg-zinc-800 p-4 hover:bg-white hover:text-zinc-900"
-                                    >
-                                        <LucideTwitter className="h-5 w-5" />
                                     </Link>
                                 </li>
                             </ul>
