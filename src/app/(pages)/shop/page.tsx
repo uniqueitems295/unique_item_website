@@ -555,7 +555,7 @@ function ShopInner() {
                                     <Spinner />
                                 </div>
                             ) : (
-                                <div className="mt-6 grid gap-5 gap-y-10 md:gap-y-14 sm:grid-cols-2 xl:grid-cols-3">
+                                <div className="mt-6 grid gap-5 gap-y-10 md:gap-y-14 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
                                     {filtered.map((p) => (
                                         <ProductCard
                                             key={p._id}
