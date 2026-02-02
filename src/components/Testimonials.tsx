@@ -29,13 +29,13 @@ export default function Testimonials() {
 
                                 <div className="grid grid-cols-[auto_1fr] items-center gap-3">
                                     <Avatar className="size-12">
-                                        <AvatarImage
+                                        {/* <AvatarImage
                                             src="/images/testimonials/ahmed.jpg"
                                             alt="Ahmed Khan"
                                             height="400"
                                             width="400"
                                             loading="lazy"
-                                        />
+                                        /> */}
                                         <AvatarFallback>AK</AvatarFallback>
                                     </Avatar>
 
@@ -59,13 +59,13 @@ export default function Testimonials() {
 
                                 <div className="grid grid-cols-[auto_1fr] items-center gap-3">
                                     <Avatar className="size-12">
-                                        <AvatarImage
+                                        {/* <AvatarImage
                                             src="/images/testimonials/ayesha.jpg"
                                             alt="Ayesha Malik"
                                             height="400"
                                             width="400"
                                             loading="lazy"
-                                        />
+                                        /> */}
                                         <AvatarFallback>AM</AvatarFallback>
                                     </Avatar>
                                     <div>
@@ -88,13 +88,13 @@ export default function Testimonials() {
 
                                 <div className="grid items-center gap-3 [grid-template-columns:auto_1fr]">
                                     <Avatar className="size-12">
-                                        <AvatarImage
+                                        {/* <AvatarImage
                                             src="/images/testimonials/usman.jpg"
                                             alt="Usman Ali"
                                             height="400"
                                             width="400"
                                             loading="lazy"
-                                        />
+                                        /> */}
                                         <AvatarFallback>UA</AvatarFallback>
                                     </Avatar>
                                     <div>
@@ -117,13 +117,13 @@ export default function Testimonials() {
 
                                 <div className="grid grid-cols-[auto_1fr] gap-3">
                                     <Avatar className="size-12">
-                                        <AvatarImage
+                                        {/* <AvatarImage
                                             src="/images/testimonials/sara.jpg"
                                             alt="Sara Noor"
                                             height="400"
                                             width="400"
                                             loading="lazy"
-                                        />
+                                        /> */}
                                         <AvatarFallback>SN</AvatarFallback>
                                     </Avatar>
                                     <div>

@@ -9,7 +9,6 @@ export default function Whatsapp() {
 
     useEffect(() => {
         const onScroll = () => {
-            // show after user scrolls a bit
             setVisible(window.scrollY > 80);
         };
 

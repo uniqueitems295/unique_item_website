@@ -166,7 +166,7 @@ export default function AllWatchesSection() {
                 </div>
 
                 {loading ? (
-                    <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="mt-10 grid gap-5 sm:grid-cols-2 grid-cols-1 lg:grid-cols-4">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <div key={i} className="rounded-2xl border bg-zinc-50 p-4">
                                 <div className="aspect-[4/5] w-full rounded-xl bg-zinc-200/60" />
@@ -177,7 +177,7 @@ export default function AllWatchesSection() {
                         ))}
                     </div>
                 ) : (
-                    <div className="mt-10 grid gap-5 sm:grid-cols-2 md:gap-y-20 gap-y-10 lg:grid-cols-4">
+                    <div className="mt-10 grid gap-5 grid-cols-1 sm:grid-cols-2 md:gap-y-20 gap-y-10 lg:grid-cols-4">
                         {products.map((p) => {
                             const discount =
                                 typeof p.oldPrice === "number" && p.oldPrice > p.price
