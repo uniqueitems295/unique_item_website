@@ -255,7 +255,7 @@ export default function HomePg() {
                                 <div className="rounded-2xl border bg-zinc-50 p-4">
                                     <p className="text-xs text-zinc-500">Support hours</p>
                                     <p className="text-sm font-medium text-zinc-900">
-                                        Mon – Sat, 10am to 8pm
+                                        Available 24/7, all days
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border bg-zinc-50 p-4">
