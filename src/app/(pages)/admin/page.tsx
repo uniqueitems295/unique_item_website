@@ -51,7 +51,11 @@ type DashboardStats = {
     pendingOrders: number
     dispatchedToday: number
     recentOrders: DashboardOrder[]
+
+    usersToday: number
+    usersLast7Days: number
 }
+
 
 function formatPKR(n: number) {
     const v = Number.isFinite(n) ? n : 0
@@ -162,7 +166,7 @@ export default function AdminDashboardPage() {
                         </div>
                     ) : (
                         <>
-                            <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3">
+                            <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-4">
                                 <Card className="rounded-2xl">
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                         <CardTitle className="text-sm font-medium text-zinc-700">Total Orders</CardTitle>
@@ -185,17 +189,6 @@ export default function AdminDashboardPage() {
                                     </CardContent>
                                 </Card>
 
-                                {/* <Card className="rounded-2xl">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-zinc-700">Customers</CardTitle>
-                                        <Users className="h-4 w-4 text-zinc-900" />
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-3xl font-semibold text-zinc-900">{data.totalCustomers}</div>
-                                        <p className="mt-1 text-xs text-zinc-500">All time</p>
-                                    </CardContent>
-                                </Card> */}
-
                                 <Card className="rounded-2xl">
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                         <CardTitle className="text-sm font-medium text-zinc-700">Revenue</CardTitle>
@@ -204,6 +197,17 @@ export default function AdminDashboardPage() {
                                     <CardContent>
                                         <div className="text-3xl font-semibold text-zinc-900">{formatPKR(data.revenue)}</div>
                                         <p className="mt-1 text-xs text-zinc-500">Calculated from orders</p>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="rounded-2xl">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <CardTitle className="text-sm font-medium text-zinc-700">Visitors</CardTitle>
+                                        <Users className="h-4 w-4 text-zinc-900" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-3xl font-semibold text-zinc-900">{data.usersToday}</div>
+                                        <p className="mt-1 text-xs text-zinc-500">{data.usersLast7Days} last 7 days</p>
                                     </CardContent>
                                 </Card>
                             </div>
