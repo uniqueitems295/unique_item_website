@@ -16,45 +16,48 @@ function startOfToday() {
   return d
 }
 
-function getPrivateKey() {
-  // env often stores newlines as \n
-  return (process.env.GA_PRIVATE_KEY || "").replace(/\\n/g, "\n")
-}
-
 async function getVisitorStats() {
   const propertyId = process.env.GA_PROPERTY_ID
   const clientEmail = process.env.GA_CLIENT_EMAIL
-  const privateKey = getPrivateKey()
+  const privateKey = (process.env.GA_PRIVATE_KEY || "").replace(/\\n/g, "\n")
 
-  // If GA not configured, just return zeros (don’t break dashboard)
   if (!propertyId || !clientEmail || !privateKey) {
-    return { usersToday: 0, usersLast7Days: 0 }
+    return {
+      usersToday: 0,
+      usersLast7Days: 0,
+      pageViewsToday: 0,
+      pageViewsLast7Days: 0,
+    }
   }
 
   const analytics = new BetaAnalyticsDataClient({
     credentials: { client_email: clientEmail, private_key: privateKey },
   })
 
-  // activeUsers per date (last 7 days including today)
-  const [report] = await analytics.runReport({
+  const [todayReport] = await analytics.runReport({
     property: `properties/${propertyId}`,
-    dateRanges: [{ startDate: "7daysAgo", endDate: "today" }],
-    metrics: [{ name: "activeUsers" }],
-    dimensions: [{ name: "date" }],
+    dateRanges: [{ startDate: "today", endDate: "today" }],
+    metrics: [{ name: "totalUsers" }, { name: "screenPageViews" }],
   })
 
-  const rows = report.rows || []
+  const usersToday = Number(todayReport.rows?.[0]?.metricValues?.[0]?.value || 0)
+  const pageViewsToday = Number(todayReport.rows?.[0]?.metricValues?.[1]?.value || 0)
 
-  const usersLast7Days = rows.reduce((sum, r) => {
-    const v = Number(r.metricValues?.[0]?.value || 0)
-    return sum + v
-  }, 0)
+  const [last7Report] = await analytics.runReport({
+    property: `properties/${propertyId}`,
+    dateRanges: [{ startDate: "7daysAgo", endDate: "today" }],
+    metrics: [{ name: "totalUsers" }, { name: "screenPageViews" }],
+  })
 
-  const todayYYYYMMDD = new Date().toISOString().slice(0, 10).replaceAll("-", "")
-  const todayRow = rows.find((r) => r.dimensionValues?.[0]?.value === todayYYYYMMDD)
-  const usersToday = Number(todayRow?.metricValues?.[0]?.value || 0)
+  const usersLast7Days = Number(last7Report.rows?.[0]?.metricValues?.[0]?.value || 0)
+  const pageViewsLast7Days = Number(last7Report.rows?.[0]?.metricValues?.[1]?.value || 0)
 
-  return { usersToday, usersLast7Days }
+  return {
+    usersToday,
+    usersLast7Days,
+    pageViewsToday,
+    pageViewsLast7Days,
+  }
 }
 
 export async function GET() {
@@ -93,8 +96,12 @@ export async function GET() {
       .project({ form: 1, total: 1, status: 1, createdAt: 1 })
       .toArray()
 
-    // ✅ NEW: GA4 Visitors
-    const { usersToday, usersLast7Days } = await getVisitorStats()
+    const {
+      usersToday,
+      usersLast7Days,
+      pageViewsToday,
+      pageViewsLast7Days,
+    } = await getVisitorStats()
 
     const data = {
       totalOrders,
@@ -105,14 +112,17 @@ export async function GET() {
       pendingOrders,
       dispatchedToday,
       recentOrders,
-
-      // ✅ add these
       usersToday,
       usersLast7Days,
+      pageViewsToday,
+      pageViewsLast7Days,
     }
 
     return NextResponse.json({ data }, { status: 200 })
   } catch (error: any) {
-    return NextResponse.json({ message: error?.message || "Server error" }, { status: 500 })
+    return NextResponse.json(
+      { message: error?.message || "Server error" },
+      { status: 500 }
+    )
   }
 }
