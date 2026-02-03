@@ -52,9 +52,19 @@ type DashboardStats = {
     dispatchedToday: number
     recentOrders: DashboardOrder[]
 
+    realtimeUsers: number
     usersToday: number
     usersLast7Days: number
+    pageViewsToday: number
+    pageViewsLast7Days: number
+
+    usersLast30Days: number
+    usersLast365Days: number
+    pageViewsLast30Days: number
+    pageViewsLast365Days: number
+
 }
+
 
 
 function formatPKR(n: number) {
@@ -206,8 +216,17 @@ export default function AdminDashboardPage() {
                                         <Users className="h-4 w-4 text-zinc-900" />
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="text-3xl font-semibold text-zinc-900">{data.usersToday}</div>
-                                        <p className="mt-1 text-xs text-zinc-500">{data.usersLast7Days} last 7 days</p>
+                                        <div className="text-3xl font-semibold text-zinc-900">{data.realtimeUsers}</div>
+                                        <p className="mt-1 text-xs text-zinc-500">Active users (last 30 min)</p>
+                                        <div className="mt-3 text-sm text-zinc-700 space-y-1">
+                                            <div>
+                                                Last 30 days: <span className="font-semibold">{data.usersLast30Days}</span>
+                                            </div>
+                                            <div>
+                                                Last 365 days: <span className="font-semibold">{data.usersLast365Days}</span>
+                                            </div>
+                                        </div>
+
                                     </CardContent>
                                 </Card>
                             </div>
