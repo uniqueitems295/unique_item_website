@@ -23,7 +23,7 @@ import { Autoplay, Pagination } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/pagination"
 
-type Category = "all" | "men" | "sport" | "couplewatches"
+type Category = "all" | "men" | "sport" | "couplewatches" | "women"
 type Availability = "all" | "in" | "out"
 
 type Product = {
@@ -53,6 +53,7 @@ type CartItem = {
 const CATEGORIES: { key: Category; label: string }[] = [
     { key: "all", label: "All Watches" },
     { key: "men", label: "Men Watches" },
+    { key: "women", label: "Women Watches" },
     { key: "couplewatches", label: "Couple watches" },
     { key: "sport", label: "Sport Watches" },
 ]
@@ -71,6 +72,7 @@ function getMinMax(products: Product[]) {
 function normalizeCategory(v: string): Category {
     const s = v.toLowerCase()
     if (s === "men") return "men"
+    if (s === "women") return "women"
     if (s === "sport") return "sport"
     if (s === "couplewatches") return "couplewatches"
     return "all"
@@ -255,7 +257,7 @@ function ProductCard({
                 <Link href={`/products/${p.slug}`} className="block">
                     <div className="relative aspect-[4/5] w-full">
                         <Swiper
-                            modules={[ Autoplay]}
+                            modules={[Autoplay]}
                             slidesPerView={1}
                             spaceBetween={0}
                             loop={slides.length > 1}
@@ -421,6 +423,11 @@ function ShopInner() {
     React.useEffect(() => {
         const q = searchParams.get("q") || ""
         setQuery(q)
+    }, [searchParams])
+
+    React.useEffect(() => {
+        const c = searchParams.get("category") || "all"
+        setCategory(normalizeCategory(c))
     }, [searchParams])
 
     const clearAll = () => {

@@ -3,24 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import UserWrapper from "@/app/(wrappers)/userWrapper";
-
-const categories = [
-    {
-        title: "Men Watches",
-        image: "https://images.unsplash.com/photo-1622434641406-a158123450f9?q=80&w=704&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        href: "/shop",
-    },
-    {
-        title: "Couples Watches",
-        image: "https://tmactwfrm3mqjwv9.public.blob.vercel-storage.com/coupleswatch",
-        href: "/shop",
-    },
-    {
-        title: "Sport Watches",
-        image: "https://images.unsplash.com/photo-1691439378545-dd6b35ff2f7b?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        href: "/shop",
-    },
-];
+import { categories } from "@/components/HomeCategories";
 
 export default function CollectionsPage() {
     return (
@@ -39,23 +22,24 @@ export default function CollectionsPage() {
 
                 <section className="py-12 sm:py-16">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
                             {categories.map((cat) => (
                                 <Link
                                     key={cat.title}
                                     href={cat.href}
-                                    className="group overflow-hidden transition"
+                                    className="group overflow-hidden rounded-xl transition "
                                 >
-                                    <div className="relative h-56 rounded-lg overflow-hidden md:h-96 w-full">
+                                    <div className="relative h-56 w-full overflow-hidden rounded-xl md:h-96">
                                         <Image
                                             src={cat.image}
                                             alt={cat.title}
                                             fill
-                                            className="object-cover rounded-lg  transition-transform duration-500 group-hover:scale-105"
+                                            sizes="(max-width: 640px) 100vw, 50vw"
+                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
                                     </div>
 
-                                    <div className="md:py-7 py-4">
+                                    <div className="py-4 md:py-7">
                                         <div className="flex items-center justify-between gap-3">
                                             <h3 className="text-base font-semibold text-zinc-900">
                                                 {cat.title}
@@ -66,7 +50,7 @@ export default function CollectionsPage() {
                                             </span>
                                         </div>
 
-                                        <div className="mt-4 h-[2px] w-full bg-zinc-200 overflow-hidden rounded-full">
+                                        <div className="mt-4 h-[2px] w-full overflow-hidden rounded-full bg-zinc-200">
                                             <div className="h-full w-0 bg-zinc-900 transition-all duration-500 group-hover:w-full" />
                                         </div>
                                     </div>
