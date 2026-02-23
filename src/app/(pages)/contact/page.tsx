@@ -101,14 +101,14 @@ export default function ContactPage() {
                                             <FaWhatsapp className="h-4 w-4" />
                                             0319 1994293
                                         </Link>
-                                        <Link
+                                        {/* <Link
                                             className="inline-flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-600"
                                             href="https://wa.me/923390134186"
                                             target="_blank"
                                         >
                                             <FaWhatsapp className="h-4 w-4" />
                                             0339 0134186
-                                        </Link>
+                                        </Link> */}
                                     </div>
                                 </div>
 
@@ -145,13 +145,13 @@ export default function ContactPage() {
                                             <PhoneIcon className="h-4 w-4" />
                                             0319 1994293
                                         </Link>
-                                        <Link
+                                        {/* <Link
                                             className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition hover:bg-muted underline-offset-4 hover:underline"
                                             href="tel:03390134186"
                                         >
                                             <PhoneIcon className="h-4 w-4" />
                                             0339 0134186
-                                        </Link>
+                                        </Link> */}
                                     </div>
                                 </div>
                             </div>
