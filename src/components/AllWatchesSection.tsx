@@ -5,13 +5,11 @@ import Link from "next/link"
 import Image from "next/image"
 import axios from "axios"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay, Pagination } from "swiper/modules"
+import { Autoplay } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/pagination"
 
@@ -146,38 +144,55 @@ export default function AllWatchesSection() {
     }
 
     return (
-        <section className="w-full">
-            <div className="mx-auto max-w-7xl px-4 pt-8 lg:pt-10">
-                <div className="flex items-end justify-between gap-4">
+        <section className="w-full bg-[#0B0C0E] py-20 md:py-28">
+            <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+                <div className="flex flex-col gap-6 border-b border-[#1E1F21] pb-10 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
-                            All Watches
+                        <span
+                            className="mb-4 block text-xs uppercase text-[#C9A15C]"
+                            style={{ fontFamily: "var(--font-mono, monospace)", letterSpacing: "0.3em" }}
+                        >
+                            The current lineup
+                        </span>
+                        <h2
+                            className="text-[#EDEAE2]"
+                            style={{
+                                fontFamily: "var(--font-display, serif)",
+                                fontSize: "clamp(2.25rem, 4vw, 3.25rem)",
+                                lineHeight: 1.05,
+                                letterSpacing: "-0.01em",
+                            }}
+                        >
+                            All watches
                         </h2>
-                        <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-                            Explore our latest watches with premium design and clean style.
+                        <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#9c9a92]">
+                            Explore our latest arrivals, built with premium materials and
+                            a clean, considered design.
                         </p>
                     </div>
 
-                    <Button asChild className="hidden rounded-full px-5 sm:inline-flex">
-                        <Link href="/shop" className="inline-flex items-center gap-2">
-                            View All <ArrowRight className="h-4 w-4" />
-                        </Link>
-                    </Button>
+                    <Link
+                        href="/shop"
+                        className="group hidden items-center gap-2 border border-[#EDEAE2]/25 px-6 py-3 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C] sm:inline-flex"
+                    >
+                        View all
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </Link>
                 </div>
 
                 {loading ? (
-                    <div className="mt-10 grid gap-5 sm:grid-cols-2 grid-cols-1 lg:grid-cols-4">
+                    <div className="mt-14 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="rounded-2xl border bg-zinc-50 p-4">
-                                <div className="aspect-[4/5] w-full rounded-xl bg-zinc-200/60" />
-                                <div className="mt-4 h-4 w-3/4 rounded bg-zinc-200/60" />
-                                <div className="mt-2 h-4 w-1/2 rounded bg-zinc-200/60" />
-                                <div className="mt-5 h-11 w-full rounded-full bg-zinc-200/60" />
+                            <div key={i} className="border border-[#1E1F21] bg-[#111214] p-4">
+                                <div className="aspect-[4/5] w-full bg-[#1a1b1d]" />
+                                <div className="mt-4 h-3 w-3/4 bg-[#1a1b1d]" />
+                                <div className="mt-2 h-3 w-1/2 bg-[#1a1b1d]" />
+                                <div className="mt-5 h-11 w-full bg-[#1a1b1d]" />
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="mt-10 grid gap-5 grid-cols-1 sm:grid-cols-2 md:gap-y-20 gap-y-10 lg:grid-cols-4">
+                    <div className="mt-14 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                         {products.map((p) => {
                             const discount =
                                 typeof p.oldPrice === "number" && p.oldPrice > p.price
@@ -191,8 +206,8 @@ export default function AllWatchesSection() {
                             const totalSlides = imgSlides.length + vidSlides.length
 
                             return (
-                                <div key={p._id} className="group transition duration-300 hover:-translate-y-1">
-                                    <div className="relative overflow-hidden  rounded-2xl bg-zinc-50">
+                                <div key={p._id} className="group">
+                                    <div className="relative overflow-hidden border border-[#1E1F21] bg-[#111214]">
                                         <Link href={`/products/${p.slug}`} className="block">
                                             <div className="relative aspect-[4/5] w-full">
                                                 <Swiper
@@ -218,7 +233,7 @@ export default function AllWatchesSection() {
                                                                     src={src}
                                                                     alt={p.name}
                                                                     fill
-                                                                    className="object-cover transition-transform duration-500 "
+                                                                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                                                                 />
                                                             </div>
                                                         </SwiperSlide>
@@ -242,13 +257,19 @@ export default function AllWatchesSection() {
                                         </Link>
 
                                         {discount !== null && (
-                                            <div className="absolute left-3 top-3 grid place-items-center rounded-full bg-red-600 px-4 py-3 text-sm font-semibold text-white z-10">
+                                            <div
+                                                className="absolute left-3 top-3 z-10 border border-[#C9A15C] bg-[#0B0C0E] px-2.5 py-1 text-[#C9A15C]"
+                                                style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 11, letterSpacing: "0.05em" }}
+                                            >
                                                 -{discount}%
                                             </div>
                                         )}
 
                                         {!p.inStock && (
-                                            <div className="absolute left-3 top-16 grid place-items-center rounded-full bg-zinc-500 px-4 py-3 text-sm font-medium text-white z-10">
+                                            <div
+                                                className="absolute left-3 top-12 z-10 border border-[#EDEAE2]/30 bg-[#0B0C0E] px-2.5 py-1 text-[#9c9a92]"
+                                                style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 11, letterSpacing: "0.05em" }}
+                                            >
                                                 Sold out
                                             </div>
                                         )}
@@ -257,46 +278,57 @@ export default function AllWatchesSection() {
                                     <div className="mt-4">
                                         <Link
                                             href={`/products/${p.slug}`}
-                                            className="line-clamp-1 text-sm font-medium text-zinc-900 hover:underline"
+                                            className="line-clamp-1 text-sm font-medium text-[#EDEAE2] transition-colors hover:text-[#C9A15C]"
                                         >
                                             {p.name}
                                         </Link>
 
                                         <div className="mt-2 flex items-center gap-2">
                                             {typeof p.oldPrice === "number" && (
-                                                <span className="text-sm text-zinc-500 line-through">
+                                                <span
+                                                    className="text-[#5f5d56] line-through"
+                                                    style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 12 }}
+                                                >
                                                     {formatPKR(p.oldPrice)}
                                                 </span>
                                             )}
-                                            <span className="text-sm font-semibold text-red-600">
+                                            <span
+                                                className="text-[#C9A15C]"
+                                                style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 13, letterSpacing: "0.02em" }}
+                                            >
                                                 {formatPKR(p.price)}
                                             </span>
 
                                             {!p.inStock && (
-                                                <Badge variant="secondary" className="ml-auto rounded-full">
-                                                    Sold Out
-                                                </Badge>
+                                                <span
+                                                    className="ml-auto border border-[#EDEAE2]/20 px-2 py-0.5 text-[#9c9a92]"
+                                                    style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 10, letterSpacing: "0.05em" }}
+                                                >
+                                                    SOLD OUT
+                                                </span>
                                             )}
                                         </div>
 
                                         <div className="mt-5">
                                             {added ? (
-                                                <Button asChild className="h-11 w-full rounded-full">
-                                                    <Link href="/cart">View Cart</Link>
-                                                </Button>
+                                                <Link
+                                                    href="/cart"
+                                                    className="flex h-11 w-full items-center justify-center border border-[#C9A15C] bg-[#C9A15C] text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
+                                                >
+                                                    View cart
+                                                </Link>
                                             ) : (
-                                                <Button
+                                                <button
                                                     type="button"
-                                                    variant="outline"
-                                                    className={cn(
-                                                        "h-11 w-full rounded-full border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white",
-                                                        !p.inStock && "pointer-events-none opacity-60"
-                                                    )}
                                                     onClick={() => handleAdd(p)}
                                                     disabled={!p.inStock}
+                                                    className={cn(
+                                                        "flex h-11 w-full items-center justify-center border border-[#EDEAE2]/30 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]",
+                                                        !p.inStock && "pointer-events-none opacity-40"
+                                                    )}
                                                 >
-                                                    ADD TO CART
-                                                </Button>
+                                                    Add to cart
+                                                </button>
                                             )}
                                         </div>
                                     </div>
@@ -306,12 +338,14 @@ export default function AllWatchesSection() {
                     </div>
                 )}
 
-                <div className="mt-10 flex justify-center sm:hidden">
-                    <Button asChild className="rounded-full px-6">
-                        <Link href="/shop" className="inline-flex items-center gap-2">
-                            View All <ArrowRight className="h-4 w-4" />
-                        </Link>
-                    </Button>
+                <div className="mt-14 flex justify-center sm:hidden">
+                    <Link
+                        href="/shop"
+                        className="group inline-flex items-center gap-2 border border-[#EDEAE2]/25 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]"
+                    >
+                        View all
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </Link>
                 </div>
             </div>
         </section>

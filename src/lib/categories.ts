@@ -19,7 +19,7 @@ export const categories = [
         index: "03",
         title: "Couples",
         sub: "Matched pairs, one story",
-        image: "https://tmactwfrm3mqjwv9.public.blob.vercel-storage.com/coupleswatch",
+        image: "https://media.istockphoto.com/id/628540774/photo/luxury-watches.jpg?s=612x612&w=0&k=20&c=lUY9ajPS1J1_h-ta-6n2VUIUSWUKVeJeWx_eDVjOc1c=",
         href: "/shop?category=couplewatches",
     },
     {

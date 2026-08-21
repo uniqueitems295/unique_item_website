@@ -24,7 +24,7 @@ export default function Hero() {
 
         const playPromise = video.play();
         if (playPromise !== undefined) {
-            playPromise.catch(() => {});
+            playPromise.catch(() => { });
         }
     }, []);
 
@@ -39,9 +39,8 @@ export default function Hero() {
         <section className="relative h-[87vh] min-h-[640px] w-full overflow-hidden bg-[#0B0C0E]">
             <video
                 ref={videoRef}
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-                    ready ? "opacity-100" : "opacity-0"
-                }`}
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"
+                    }`}
                 src="https://tmactwfrm3mqjwv9.public.blob.vercel-storage.com/herobg.mp4"
                 autoPlay
                 loop
@@ -55,7 +54,7 @@ export default function Hero() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#0B0C0E]/20 via-transparent to-[#0B0C0E]/30" />
 
             <div className="relative z-10 flex h-full flex-col items-center justify-end px-6 pb-34 text-center sm:px-8">
-               
+
 
                 <h1
                     className="max-w-3xl text-[#EDEAE2]"
@@ -70,8 +69,8 @@ export default function Hero() {
                     <span className="italic text-[#C9A15C]">higher standard.</span>
                 </h1>
 
-                <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[#c9c7bd]">
-                    Machined from surgical-grade steel, driven by a hand-finished
+                <p className="mt-6 max-w-md tracking-wide leading-relaxed text-[#fff]/90">
+                    Machined from surgical-grade steel, driven by a hand finished
                     automatic movement built to outlast the decade.
                 </p>
 
@@ -100,6 +99,10 @@ export default function Hero() {
             >
                 {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             </button>
+
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C0E]/20 via-[#0B0C0E]/35 to-[#0B0C0E]/30" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0B0C0E]/20 via-transparent to-[#0B0C0E]/30" />
+            <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0B0C0E] via-[#0B0C0E]/70 to-transparent" />
         </section>
     );
 }
