@@ -148,12 +148,6 @@ export default function AllWatchesSection() {
             <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
                 <div className="flex flex-col gap-6 border-b border-[#1E1F21] pb-10 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <span
-                            className="mb-4 block text-xs uppercase text-[#C9A15C]"
-                            style={{ fontFamily: "var(--font-mono, monospace)", letterSpacing: "0.3em" }}
-                        >
-                            The current lineup
-                        </span>
                         <h2
                             className="text-[#EDEAE2]"
                             style={{
@@ -173,7 +167,7 @@ export default function AllWatchesSection() {
 
                     <Link
                         href="/shop"
-                        className="group hidden items-center gap-2 border border-[#EDEAE2]/25 px-6 py-3 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C] sm:inline-flex"
+                        className="group hidden rounded-xl items-center gap-2 border border-[#EDEAE2]/25 px-6 py-3 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C] sm:inline-flex"
                     >
                         View all
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
