@@ -175,7 +175,7 @@ export default function AllWatchesSection() {
                 </div>
 
                 {loading ? (
-                    <div className="mt-14 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="mt-14 grid gap-6 md:gap-y-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                         {Array.from({ length: 8 }).map((_, i) => (
                             <div key={i} className="border border-[#1E1F21] bg-[#111214] p-4">
                                 <div className="aspect-[4/5] w-full bg-[#1a1b1d]" />
@@ -186,7 +186,7 @@ export default function AllWatchesSection() {
                         ))}
                     </div>
                 ) : (
-                    <div className="mt-14 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="mt-14 grid gap-6 md:gap-y-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                         {products.map((p) => {
                             const discount =
                                 typeof p.oldPrice === "number" && p.oldPrice > p.price
@@ -252,7 +252,7 @@ export default function AllWatchesSection() {
 
                                         {discount !== null && (
                                             <div
-                                                className="absolute left-3 top-3 z-10 border rounded-lg border-[#C9A15C] bg-[#0B0C0E] px-2.5 py-1 text-[#C9A15C]"
+                                                className="absolute left-3 top-3 z-10 border rounded-full border-[#C9A15C] bg-[#0B0C0E] px-2.5 py-1 text-[#C9A15C]"
                                                 style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 11, letterSpacing: "0.05em" }}
                                             >
                                                 -{discount}%
@@ -307,7 +307,7 @@ export default function AllWatchesSection() {
                                             {added ? (
                                                 <Link
                                                     href="/cart"
-                                                    className="flex rounded-lg h-11 w-full items-center justify-center border border-[#C9A15C] bg-[#C9A15C] text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
+                                                    className="flex rounded-full h-11 w-full items-center justify-center border border-[#C9A15C] bg-[#C9A15C] text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
                                                 >
                                                     View cart
                                                 </Link>
@@ -317,7 +317,7 @@ export default function AllWatchesSection() {
                                                     onClick={() => handleAdd(p)}
                                                     disabled={!p.inStock}
                                                     className={cn(
-                                                        "flex rounded-lg h-11 w-full items-center justify-center border border-[#EDEAE2]/30 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]",
+                                                        "flex rounded-full h-11 w-full items-center justify-center border border-[#EDEAE2]/30 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]",
                                                         !p.inStock && "pointer-events-none opacity-40"
                                                     )}
                                                 >
