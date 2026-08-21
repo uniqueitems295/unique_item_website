@@ -14,6 +14,7 @@ export async function GET() {
 
         return NextResponse.json({ products: data }, { status: 200 })
     } catch (error: any) {
+        console.log(error)
         return NextResponse.json(
             { message: "Server error", error: error?.message || "Unknown error" },
             { status: 500 }

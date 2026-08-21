@@ -36,6 +36,7 @@ type Product = {
     collection: string
     description?: string
     images?: string[]
+    videos?: string[]
     colors?: string[]
     status: "published" | "draft"
     inStock: boolean
@@ -245,7 +246,9 @@ function ProductCard({
             : null
 
     const imgs = (p.images || []).map((u) => safeImage(u))
-    const slides = imgs.length > 0 ? imgs : ["/images/placeholder.png"]
+    const vidSlides = (p.videos || []).filter((v) => v?.trim())
+    const imgSlides = imgs.length === 0 && vidSlides.length === 0 ? ["/images/placeholder.png"] : imgs
+    const totalSlides = imgSlides.length + vidSlides.length
 
     const colors = Array.isArray(p.colors)
         ? p.colors.map((c) => String(c).trim()).filter(Boolean)
@@ -260,9 +263,9 @@ function ProductCard({
                             modules={[Autoplay]}
                             slidesPerView={1}
                             spaceBetween={0}
-                            loop={slides.length > 1}
+                            loop={totalSlides > 1}
                             autoplay={
-                                slides.length > 1
+                                totalSlides > 1
                                     ? {
                                         delay: autoplayDelay,
                                         disableOnInteraction: false,
@@ -272,14 +275,28 @@ function ProductCard({
                             }
                             className="h-full w-full"
                         >
-                            {slides.map((src, idx) => (
-                                <SwiperSlide key={`${p._id}-${idx}`}>
+                            {imgSlides.map((src, idx) => (
+                                <SwiperSlide key={`${p._id}-img-${idx}`}>
                                     <div className="relative h-full w-full">
                                         <Image
                                             src={src}
                                             alt={p.name}
                                             fill
-                                            className="object-cover transition-transform duration-500]"
+                                            className="object-cover transition-transform duration-500"
+                                        />
+                                    </div>
+                                </SwiperSlide>
+                            ))}
+                            {vidSlides.map((src, idx) => (
+                                <SwiperSlide key={`${p._id}-vid-${idx}`}>
+                                    <div className="relative h-full w-full bg-black">
+                                        <video
+                                            src={src}
+                                            autoPlay
+                                            muted
+                                            loop
+                                            playsInline
+                                            className="absolute inset-0 h-full w-full object-cover"
                                         />
                                     </div>
                                 </SwiperSlide>
@@ -398,11 +415,11 @@ function ShopInner() {
             setError("")
             const res = await axios.get("/api/products")
             const list: Product[] = res.data?.products || []
-            const publishedOnly = list.filter((p) => p.status === "published")
-            setProducts(publishedOnly)
+            // API already filters isPublished:true — no client-side filter needed
+            setProducts(list)
 
             const auto: Record<string, number> = {}
-            for (const p of publishedOnly) auto[p._id] = randInt(4000, 6500)
+            for (const p of list) auto[p._id] = randInt(4000, 6500)
             setAutoplayMs(auto)
         } catch (e: any) {
             setError(e?.response?.data?.message || "Failed to load products")

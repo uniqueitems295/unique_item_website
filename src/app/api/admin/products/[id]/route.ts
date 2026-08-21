@@ -15,6 +15,7 @@ type ProductDoc = {
     collection: string
     description?: string
     images?: string[]
+    videos?: string[]
     colors?: string[]
     status: Status
     inStock: boolean
@@ -64,6 +65,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
             "collection",
             "description",
             "images",
+            "videos",
             "colors",
             "status",
             "inStock",
@@ -86,6 +88,10 @@ export async function PATCH(req: Request, ctx: Ctx) {
 
         if (updateDoc.images !== undefined) {
             updateDoc.images = Array.isArray(updateDoc.images) ? updateDoc.images : []
+        }
+
+        if (updateDoc.videos !== undefined) {
+            updateDoc.videos = Array.isArray(updateDoc.videos) ? updateDoc.videos : []
         }
 
         if (updateDoc.colors !== undefined) {

@@ -26,6 +26,7 @@ type Product = {
     collection: string
     description?: string
     images?: string[]
+    videos?: string[]
     colors?: string[]
     status: "published" | "draft"
     inStock: boolean
@@ -188,8 +189,11 @@ export default function ManageProductsPage() {
                                 {filtered.map((p) => {
                                     const stockLabel = p.inStock ? "In Stock" : "Out of Stock"
                                     const statusLabel = p.status === "published" ? "Published" : "Draft"
-                                    const img =
-                                        p.images?.[0]?.trim() ? p.images[0] : "/images/placeholder.png"
+                                    
+                                    const hasImg = p.images?.[0]?.trim()
+                                    const hasVid = p.videos?.[0]?.trim()
+                                    
+                                    const img = hasImg ? p.images![0] : "/images/placeholder.png"
 
                                     return (
                                         <div
@@ -197,7 +201,18 @@ export default function ManageProductsPage() {
                                             className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-[56px_1.5fr_0.8fr_0.7fr_0.7fr_0.6fr_48px] md:items-center"
                                         >
                                             <div className="relative h-14 w-14 overflow-hidden rounded-xl bg-zinc-50">
-                                                <Image src={img} alt={p.name} fill className="object-cover" />
+                                                {!hasImg && hasVid ? (
+                                                    <video
+                                                        src={hasVid}
+                                                        autoPlay
+                                                        muted
+                                                        loop
+                                                        playsInline
+                                                        className="absolute inset-0 h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <Image src={img} alt={p.name} fill className="object-cover" />
+                                                )}
                                             </div>
 
                                             <div className="space-y-1">

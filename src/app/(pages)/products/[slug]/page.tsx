@@ -26,6 +26,7 @@ type Product = {
     collection: string
     description?: string
     images?: string[]
+    videos?: string[]
     colors?: string[]
     status: "published" | "draft"
     inStock: boolean
@@ -114,9 +115,18 @@ export default function ProductDetailsPage({
 
     const [autoplayDelay] = React.useState(() => randInt(4000, 6500))
 
-    const slides = React.useMemo(() => {
+    const items = React.useMemo(() => {
         const imgs = (product?.images || []).map((u) => safeImage(u))
-        return imgs.length > 0 ? imgs : ["/images/placeholder.png"]
+        const vids = (product?.videos || []).filter((v) => v?.trim())
+        const arr: { type: "image" | "video"; src: string }[] = []
+        
+        for (const i of imgs) arr.push({ type: "image", src: i })
+        for (const v of vids) arr.push({ type: "video", src: v })
+        
+        if (arr.length === 0) {
+            arr.push({ type: "image", src: "/images/placeholder.png" })
+        }
+        return arr
     }, [product])
 
     const colors = React.useMemo(() => {
@@ -132,7 +142,7 @@ export default function ProductDetailsPage({
                 const res = await axios.get("/api/products")
                 const products: Product[] = res.data?.products || []
 
-                const found = products.find((p) => p.slug === slug && p.status === "published")
+                const found = products.find((p) => p.slug === slug)
 
                 if (!found) {
                     setProduct(null)
@@ -217,10 +227,10 @@ export default function ProductDetailsPage({
                                     <Swiper
                                         modules={[Pagination, Autoplay]}
                                         slidesPerView={1}
-                                        loop={slides.length > 1}
+                                        loop={items.length > 1}
                                         pagination={{ clickable: true }}
                                         autoplay={
-                                            slides.length > 1
+                                            items.length > 1
                                                 ? {
                                                     delay: autoplayDelay,
                                                     disableOnInteraction: false,
@@ -230,10 +240,21 @@ export default function ProductDetailsPage({
                                         }
                                         className="h-full w-full"
                                     >
-                                        {slides.map((src, idx) => (
+                                        {items.map((item, idx) => (
                                             <SwiperSlide key={`${product._id}-${idx}`}>
-                                                <div className="relative h-full w-full">
-                                                    <Image src={src} alt={product.name} fill className="object-cover" />
+                                                <div className="relative h-full w-full bg-black">
+                                                    {item.type === "image" ? (
+                                                        <Image src={item.src} alt={product.name} fill className="object-cover" />
+                                                    ) : (
+                                                        <video
+                                                            src={item.src}
+                                                            autoPlay
+                                                            muted
+                                                            loop
+                                                            playsInline
+                                                            className="absolute inset-0 h-full w-full object-cover"
+                                                        />
+                                                    )}
                                                 </div>
                                             </SwiperSlide>
                                         ))}

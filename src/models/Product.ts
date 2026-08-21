@@ -9,6 +9,7 @@ export interface IProduct {
     collection: string;
     description?: string;
     images?: string[];
+    videos?: string[];
     colors?: string[];
     inStock: boolean;
     isPublished: boolean;
@@ -58,6 +59,11 @@ const ProductSchema = new Schema<IProduct>(
         },
 
         images: {
+            type: [String],
+            default: [],
+        },
+
+        videos: {
             type: [String],
             default: [],
         },

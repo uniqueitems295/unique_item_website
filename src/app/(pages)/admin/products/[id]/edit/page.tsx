@@ -43,14 +43,21 @@ export default function EditProductPage() {
     const id = params?.id
 
     const fileRef = useRef<HTMLInputElement | null>(null)
+    const videoRef = useRef<HTMLInputElement | null>(null)
 
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [uploading, setUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null)
 
     const [images, setImages] = useState<string[]>([])
     const [colorInput, setColorInput] = useState("")
     const [colors, setColors] = useState<string[]>([])
+
+    const [videos, setVideos] = useState<string[]>([])
+    const [videoUploading, setVideoUploading] = useState(false)
+    const [videoUploadProgress, setVideoUploadProgress] = useState<{ done: number; total: number } | null>(null)
+    const [videoError, setVideoError] = useState<string | null>(null)
 
     const [formData, setFormData] = useState({
         name: "",
@@ -83,6 +90,7 @@ export default function EditProductPage() {
             })
 
             setImages(Array.isArray(p.images) ? p.images : [])
+            setVideos(Array.isArray(p.videos) ? p.videos : [])
             setColors(Array.isArray(p.colors) ? p.colors : [])
         } catch (e: any) {
             alert(e?.response?.data?.message || "Failed to load product")
@@ -105,19 +113,49 @@ export default function EditProductPage() {
         fileRef.current?.click()
     }
 
-    const handleUploadImage = async (file: File) => {
-        try {
-            setUploading(true)
+    const handleUploadImages = async (files: FileList) => {
+        if (!files.length) return
+        setUploading(true)
+        setUploadProgress({ done: 0, total: files.length })
+
+        const ALLOWED = ["image/jpeg", "image/png", "image/webp"]
+        const MAX_BYTES = 800 * 1024
+
+        const uploadOne = async (file: File): Promise<string | null> => {
+            if (!ALLOWED.includes(file.type)) {
+                alert(`"${file.name}" skipped — only JPG, PNG, WEBP allowed.`)
+                return null
+            }
             const uniqueName = `${crypto.randomUUID()}-${file.name.replace(/\s+/g, "-")}`
             const blob = await upload(uniqueName, file, {
                 access: "public",
                 handleUploadUrl: "/api/upload",
             })
-            setImages((prev) => [...prev, blob.url])
+            return blob.url
+        }
+
+        try {
+            const fileArray = Array.from(files)
+            let done = 0
+
+            const results = await Promise.all(
+                fileArray.map(async (file) => {
+                    const url = await uploadOne(file)
+                    done++
+                    setUploadProgress({ done, total: fileArray.length })
+                    return url
+                })
+            )
+
+            const uploaded = results.filter(Boolean) as string[]
+            if (uploaded.length > 0) {
+                setImages((prev) => [...prev, ...uploaded])
+            }
         } catch (e: any) {
             alert(e?.message || "Image upload failed")
         } finally {
             setUploading(false)
+            setUploadProgress(null)
             if (fileRef.current) fileRef.current.value = ""
         }
     }
@@ -127,7 +165,63 @@ export default function EditProductPage() {
         if (fileRef.current) fileRef.current.value = ""
     }
 
-    const normalizeColor = (c: string) => c.trim().toLowerCase()
+    const handlePickVideo = () => {
+        videoRef.current?.click()
+    }
+
+    const removeVideoAt = (index: number) => {
+        setVideos((prev) => prev.filter((_, i) => i !== index))
+        if (videoRef.current) videoRef.current.value = ""
+    }
+
+    const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"]
+    const MAX_VIDEO_BYTES = 50 * 1024 * 1024
+
+    const handleUploadVideos = async (files: FileList) => {
+        if (!files.length) return
+        setVideoUploading(true)
+        setVideoUploadProgress({ done: 0, total: files.length })
+
+        const uploadOne = async (file: File): Promise<string | null> => {
+            if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
+                alert(`"${file.name}" skipped — only MP4, WEBM, MOV allowed.`)
+                return null
+            }
+            if (file.size > MAX_VIDEO_BYTES) {
+                alert(`"${file.name}" is too large (max 50 MB). Skipped.`)
+                return null
+            }
+            const uniqueName = `${crypto.randomUUID()}-${file.name.replace(/\s+/g, "-")}`
+            const blob = await upload(uniqueName, file, {
+                access: "public",
+                handleUploadUrl: "/api/upload",
+            })
+            return blob.url
+        }
+
+        try {
+            const fileArray = Array.from(files)
+            let done = 0
+            const results = await Promise.all(
+                fileArray.map(async (file) => {
+                    const url = await uploadOne(file)
+                    done++
+                    setVideoUploadProgress({ done, total: fileArray.length })
+                    return url
+                })
+            )
+            const uploaded = results.filter(Boolean) as string[]
+            if (uploaded.length > 0) {
+                setVideos((prev) => [...prev, ...uploaded])
+            }
+        } catch (e: any) {
+            setVideoError(e?.message || "Video upload failed")
+        } finally {
+            setVideoUploading(false)
+            setVideoUploadProgress(null)
+            if (videoRef.current) videoRef.current.value = ""
+        }
+    }
 
     const addColor = () => {
         const v = normalizeColor(colorInput)
@@ -157,6 +251,7 @@ export default function EditProductPage() {
                 collection: formData.collection,
                 description: formData.description,
                 images,
+                videos,
                 colors,
                 status: formData.status,
                 inStock: formData.inStock,
@@ -346,10 +441,10 @@ export default function EditProductPage() {
                                         ref={fileRef}
                                         type="file"
                                         accept="image/*"
+                                        multiple
                                         className="hidden"
                                         onChange={(e) => {
-                                            const file = e.target.files?.[0]
-                                            if (file) handleUploadImage(file)
+                                            if (e.target.files?.length) handleUploadImages(e.target.files)
                                         }}
                                     />
 
@@ -411,6 +506,12 @@ export default function EditProductPage() {
                                         </div>
                                     )}
 
+                                    {uploadProgress && (
+                                        <div className="rounded-xl border bg-white px-4 py-3 text-sm text-zinc-700">
+                                            Uploading {uploadProgress.done} / {uploadProgress.total}...
+                                        </div>
+                                    )}
+
                                     <Button
                                         type="button"
                                         variant="outline"
@@ -418,7 +519,96 @@ export default function EditProductPage() {
                                         onClick={handlePickImage}
                                         disabled={uploading}
                                     >
-                                        {uploading ? "Uploading..." : "Add Image"}
+                                        {uploading
+                                            ? uploadProgress
+                                                ? `Uploading ${uploadProgress.done}/${uploadProgress.total}...`
+                                                : "Uploading..."
+                                            : "Add Images"}
+                                    </Button>
+                                </CardContent>
+                            </Card>
+
+                            {/* ---- Video Upload Card ---- */}
+                            <Card className="rounded-2xl">
+                                <CardHeader>
+                                    <CardTitle>Product Videos</CardTitle>
+                                </CardHeader>
+
+                                <CardContent className="space-y-4">
+                                    <input
+                                        ref={videoRef}
+                                        type="file"
+                                        accept="video/mp4,video/webm,video/quicktime"
+                                        multiple
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            if (e.target.files?.length) handleUploadVideos(e.target.files)
+                                        }}
+                                    />
+
+                                    {videos.length === 0 && !videoUploading && (
+                                        <div className="flex h-32 items-center justify-center rounded-2xl border border-dashed bg-zinc-50">
+                                            <div className="text-center">
+                                                <p className="text-sm text-zinc-600">No videos uploaded yet</p>
+                                                <p className="text-xs text-zinc-500 mt-1">MP4, WEBM, MOV · max 50 MB each</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {videos.length > 0 && (
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-zinc-600">
+                                                Uploaded Videos ({videos.length})
+                                            </p>
+                                            <div className="space-y-2">
+                                                {videos.map((url, idx) => (
+                                                    <div key={`${url}-${idx}`} className="relative overflow-hidden rounded-xl border bg-zinc-50">
+                                                        <video
+                                                            src={url}
+                                                            controls
+                                                            className="w-full max-h-48 object-contain bg-black"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeVideoAt(idx)}
+                                                            className="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 shadow"
+                                                            aria-label="Remove video"
+                                                        >
+                                                            <X className="h-3.5 w-3.5" />
+                                                        </button>
+                                                        <div className="px-3 py-1.5 text-xs text-zinc-500">
+                                                            Video {idx + 1}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {videoUploadProgress && (
+                                        <div className="rounded-xl border bg-white px-4 py-3 text-sm text-zinc-700">
+                                            Uploading {videoUploadProgress.done} / {videoUploadProgress.total}...
+                                        </div>
+                                    )}
+
+                                    {videoError && (
+                                        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                            {videoError}
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full rounded-xl"
+                                        onClick={handlePickVideo}
+                                        disabled={videoUploading}
+                                    >
+                                        {videoUploading
+                                            ? videoUploadProgress
+                                                ? `Uploading ${videoUploadProgress.done}/${videoUploadProgress.total}...`
+                                                : "Uploading..."
+                                            : "Add Videos"}
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -465,7 +655,7 @@ export default function EditProductPage() {
                                         type="button"
                                         className="w-full h-11 rounded-xl"
                                         onClick={handleSave}
-                                        disabled={saving || uploading}
+                                        disabled={saving || uploading || videoUploading}
                                     >
                                         {saving ? "Saving..." : "Save Changes"}
                                     </Button>

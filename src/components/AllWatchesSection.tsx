@@ -25,6 +25,7 @@ type Product = {
     collection: string
     description?: string
     images?: string[]
+    videos?: string[]
     colors?: string[]
     status: "published" | "draft"
     inStock: boolean
@@ -105,8 +106,7 @@ export default function AllWatchesSection() {
             setLoading(true)
             const res = await axios.get("/api/products")
             const list: Product[] = res.data?.products || []
-            const published = list.filter((p) => p.status === "published")
-            const slice = published.slice(0, 8)
+            const slice = list.slice(0, 8)
 
             setProducts(slice)
 
@@ -186,7 +186,9 @@ export default function AllWatchesSection() {
 
                             const added = Boolean(addedIds[p._id])
                             const imgs = (p.images || []).map((u) => safeImage(u))
-                            const slides = imgs.length > 0 ? imgs : ["/images/placeholder.png"]
+                            const vidSlides = (p.videos || []).filter((v) => v?.trim())
+                            const imgSlides = imgs.length === 0 && vidSlides.length === 0 ? ["/images/placeholder.png"] : imgs
+                            const totalSlides = imgSlides.length + vidSlides.length
 
                             return (
                                 <div key={p._id} className="group transition duration-300 hover:-translate-y-1">
@@ -197,9 +199,9 @@ export default function AllWatchesSection() {
                                                     modules={[Autoplay]}
                                                     slidesPerView={1}
                                                     spaceBetween={0}
-                                                    loop={slides.length > 1}
+                                                    loop={totalSlides > 1}
                                                     autoplay={
-                                                        slides.length > 1
+                                                        totalSlides > 1
                                                             ? {
                                                                 delay: autoplayMs[p._id] ?? 5000,
                                                                 disableOnInteraction: false,
@@ -209,14 +211,28 @@ export default function AllWatchesSection() {
                                                     }
                                                     className="h-full w-full"
                                                 >
-                                                    {slides.map((src, idx) => (
-                                                        <SwiperSlide key={`${p._id}-${idx}`}>
+                                                    {imgSlides.map((src, idx) => (
+                                                        <SwiperSlide key={`${p._id}-img-${idx}`}>
                                                             <div className="relative h-full w-full">
                                                                 <Image
                                                                     src={src}
                                                                     alt={p.name}
                                                                     fill
                                                                     className="object-cover transition-transform duration-500 "
+                                                                />
+                                                            </div>
+                                                        </SwiperSlide>
+                                                    ))}
+                                                    {vidSlides.map((src, idx) => (
+                                                        <SwiperSlide key={`${p._id}-vid-${idx}`}>
+                                                            <div className="relative h-full w-full bg-black">
+                                                                <video
+                                                                    src={src}
+                                                                    autoPlay
+                                                                    muted
+                                                                    loop
+                                                                    playsInline
+                                                                    className="absolute inset-0 h-full w-full object-cover"
                                                                 />
                                                             </div>
                                                         </SwiperSlide>

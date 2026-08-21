@@ -10,7 +10,10 @@ export async function POST(req: Request) {
             request: req,
             onBeforeGenerateToken: async () => {
                 return {
-                    allowedContentTypes: ["image/jpeg", "image/png", "image/webp"],
+                    allowedContentTypes: [
+                        "image/jpeg", "image/png", "image/webp",
+                        "video/mp4", "video/webm", "video/quicktime",
+                    ],
                     tokenPayload: JSON.stringify({}),
                 }
             },

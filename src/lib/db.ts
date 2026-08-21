@@ -2,6 +2,9 @@ import mongoose from "mongoose"
 
 const MONGODB_URI = process.env.MONGODB_URI as string
 
+import dns from 'dns';
+dns.setServers(['8.8.8.8']);
+
 if (!MONGODB_URI) {
     throw new Error("Missing MONGODB_URI in .env.local")
 }

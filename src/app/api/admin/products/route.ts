@@ -11,6 +11,7 @@ type ProductPayload = {
     collection: string
     description?: string
     images?: string[]
+    videos?: string[]
     colors?: string[]
     status: "published" | "draft"
     inStock: boolean
@@ -83,6 +84,7 @@ export async function POST(req: Request) {
             collection,
             description,
             images,
+            videos,
             colors,
             status,
             inStock,
@@ -110,6 +112,7 @@ export async function POST(req: Request) {
             collection,
             description: description ?? "",
             images: Array.isArray(images) ? images : [],
+            videos: Array.isArray(videos) ? videos : [],
             colors: Array.isArray(colors) ? colors : [],
             status: status ?? "published",
             inStock: inStock ?? true,
