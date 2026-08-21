@@ -167,7 +167,7 @@ export default function AllWatchesSection() {
 
                     <Link
                         href="/shop"
-                        className="group hidden rounded-lg items-center gap-2 border border-[#EDEAE2]/25 px-6 py-3 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C] sm:inline-flex"
+                        className="group hidden rounded-full items-center gap-2 border border-[#EDEAE2]/25 px-6 py-3 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C] sm:inline-flex"
                     >
                         View all
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -335,7 +335,7 @@ export default function AllWatchesSection() {
                 <div className="mt-14 flex justify-center sm:hidden">
                     <Link
                         href="/shop"
-                        className="group inline-flex items-center gap-2 border border-[#EDEAE2]/25 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]"
+                        className="group rounded-full inline-flex items-center gap-2 border border-[#EDEAE2]/25 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]"
                     >
                         View all
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

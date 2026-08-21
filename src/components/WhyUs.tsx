@@ -166,14 +166,14 @@ export default function WhyUs() {
                         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
                             <Link
                                 href="/shop"
-                                className="group inline-flex items-center justify-center gap-2 border border-[#C9A15C] bg-[#C9A15C] px-7 py-3.5 text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
+                                className="group inline-flex rounded-full items-center justify-center gap-2 border border-[#C9A15C] bg-[#C9A15C] px-7 py-3.5 text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
                             >
                                 Browse all watches
                                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                             </Link>
                             <Link
                                 href="/contact"
-                                className="inline-flex items-center justify-center gap-2 border border-[#EDEAE2]/25 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#EDEAE2]"
+                                className="inline-flex rounded-full items-center justify-center gap-2 border border-[#EDEAE2]/25 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#EDEAE2]"
                             >
                                 Contact support
                             </Link>
