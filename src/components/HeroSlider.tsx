@@ -77,14 +77,14 @@ export default function Hero() {
                 <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                     <Link
                         href="/shop"
-                        className="group inline-flex items-center gap-2 border border-[#C9A15C] bg-[#C9A15C] px-7 py-3.5 text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
+                        className="group inline-flex rounded-lg items-center gap-2 border border-[#C9A15C] bg-[#C9A15C] px-7 py-3.5 text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
                     >
                         View all watches
                         <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </Link>
                     <Link
                         href="/about"
-                        className="inline-flex items-center gap-2 border border-[#EDEAE2]/30 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#EDEAE2]"
+                        className="inline-flex rounded-lg items-center gap-2 border border-[#EDEAE2]/30 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#EDEAE2]"
                     >
                         The craft behind it
                     </Link>

@@ -167,7 +167,7 @@ export default function AllWatchesSection() {
 
                     <Link
                         href="/shop"
-                        className="group hidden rounded-xl items-center gap-2 border border-[#EDEAE2]/25 px-6 py-3 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C] sm:inline-flex"
+                        className="group hidden rounded-lg items-center gap-2 border border-[#EDEAE2]/25 px-6 py-3 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C] sm:inline-flex"
                     >
                         View all
                         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -227,7 +227,7 @@ export default function AllWatchesSection() {
                                                                     src={src}
                                                                     alt={p.name}
                                                                     fill
-                                                                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                                                                    className="object-cover rounded-lg transition-transform duration-500 group-hover:scale-[1.04]"
                                                                 />
                                                             </div>
                                                         </SwiperSlide>
@@ -241,7 +241,7 @@ export default function AllWatchesSection() {
                                                                     muted
                                                                     loop
                                                                     playsInline
-                                                                    className="absolute inset-0 h-full w-full object-cover"
+                                                                    className="absolute inset-0 rounded-lg h-full w-full object-cover"
                                                                 />
                                                             </div>
                                                         </SwiperSlide>
@@ -252,7 +252,7 @@ export default function AllWatchesSection() {
 
                                         {discount !== null && (
                                             <div
-                                                className="absolute left-3 top-3 z-10 border border-[#C9A15C] bg-[#0B0C0E] px-2.5 py-1 text-[#C9A15C]"
+                                                className="absolute left-3 top-3 z-10 border rounded-lg border-[#C9A15C] bg-[#0B0C0E] px-2.5 py-1 text-[#C9A15C]"
                                                 style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 11, letterSpacing: "0.05em" }}
                                             >
                                                 -{discount}%
@@ -261,7 +261,7 @@ export default function AllWatchesSection() {
 
                                         {!p.inStock && (
                                             <div
-                                                className="absolute left-3 top-12 z-10 border border-[#EDEAE2]/30 bg-[#0B0C0E] px-2.5 py-1 text-[#9c9a92]"
+                                                className="absolute left-3 rounded-lg top-12 z-10 border border-[#EDEAE2]/30 bg-[#0B0C0E] px-2.5 py-1 text-[#9c9a92]"
                                                 style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 11, letterSpacing: "0.05em" }}
                                             >
                                                 Sold out
@@ -272,7 +272,7 @@ export default function AllWatchesSection() {
                                     <div className="mt-4">
                                         <Link
                                             href={`/products/${p.slug}`}
-                                            className="line-clamp-1 text-sm font-medium text-[#EDEAE2] transition-colors hover:text-[#C9A15C]"
+                                            className="line-clamp-1 font-medium text-[#EDEAE2] transition-colors hover:text-[#C9A15C]"
                                         >
                                             {p.name}
                                         </Link>
@@ -288,14 +288,14 @@ export default function AllWatchesSection() {
                                             )}
                                             <span
                                                 className="text-[#C9A15C]"
-                                                style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 13, letterSpacing: "0.02em" }}
+                                                style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 14, letterSpacing: "0.02em" }}
                                             >
                                                 {formatPKR(p.price)}
                                             </span>
 
                                             {!p.inStock && (
                                                 <span
-                                                    className="ml-auto border border-[#EDEAE2]/20 px-2 py-0.5 text-[#9c9a92]"
+                                                    className="ml-auto rounded-lg border border-[#EDEAE2]/20 px-2 py-0.5 text-[#9c9a92]"
                                                     style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 10, letterSpacing: "0.05em" }}
                                                 >
                                                     SOLD OUT
@@ -307,7 +307,7 @@ export default function AllWatchesSection() {
                                             {added ? (
                                                 <Link
                                                     href="/cart"
-                                                    className="flex h-11 w-full items-center justify-center border border-[#C9A15C] bg-[#C9A15C] text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
+                                                    className="flex rounded-lg h-11 w-full items-center justify-center border border-[#C9A15C] bg-[#C9A15C] text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
                                                 >
                                                     View cart
                                                 </Link>
@@ -317,7 +317,7 @@ export default function AllWatchesSection() {
                                                     onClick={() => handleAdd(p)}
                                                     disabled={!p.inStock}
                                                     className={cn(
-                                                        "flex h-11 w-full items-center justify-center border border-[#EDEAE2]/30 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]",
+                                                        "flex rounded-lg h-11 w-full items-center justify-center border border-[#EDEAE2]/30 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]",
                                                         !p.inStock && "pointer-events-none opacity-40"
                                                     )}
                                                 >
