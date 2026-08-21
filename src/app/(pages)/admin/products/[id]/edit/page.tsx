@@ -32,6 +32,7 @@ type Product = {
     collection: string
     description?: string
     images?: string[]
+    videos?: string[]
     colors?: string[]
     status: Status
     inStock: boolean
