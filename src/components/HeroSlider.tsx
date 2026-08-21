@@ -1,189 +1,105 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from "@/components/ui/carousel";
-import type { CarouselApi } from "@/components/ui/carousel";
+import { ArrowUpRight, Volume2, VolumeX } from "lucide-react";
 
-type Slide = {
-    id: string;
-    bg: string;
-    title: string;
-    subtitle: string;
-    desc: string;
-    image: string;
-    ctaPrimary: { label: string; href: string };
-    ctaSecondary: { label: string; href: string };
-    align?: "left" | "right";
-};
-
-const slides: Slide[] = [
-    {
-        id: "s1",
-        bg: "/images/hero/hero-bg-1.png",
-        title: "Premium Watches",
-        subtitle: "Timeless Style. Everyday Confidence.",
-        desc: "Explore premium watches designed for comfort, durability, and a clean modern look.",
-        image: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2F0Y2hzfGVufDB8fDB8fHww",
-        ctaPrimary: { label: "Shop Now", href: "/shop" },
-        ctaSecondary: { label: "View Collections", href: "/collections" },
-        align: "left",
-    },
-    {
-        id: "s2",
-        bg: "/images/hero/hero-bg-2.png",
-        title: "Minimal. Modern. Bold.",
-        subtitle: "A watch that matches your vibe.",
-        desc: "Choose from classic leather, stainless steel, and sporty designs—made for every moment.",
-        image: "https://images.unsplash.com/photo-1630512731371-a3747ab932ed?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDY2fHx8ZW58MHx8fHx8",
-        ctaPrimary: { label: "Explore New", href: "/new" },
-        ctaSecondary: { label: "Best Sellers", href: "/best-sellers" },
-        align: "left",
-    },
-    {
-        id: "s3",
-        bg: "/images/hero/hero-bg-3.png",
-        title: "Built To Last",
-        subtitle: "Premium look. Reliable performance.",
-        desc: "Quality materials and a refined finish—perfect for gifting or upgrading your daily style.",
-        image: "https://images.unsplash.com/photo-1634140704051-58a787556cd1?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDEzOXx8fGVufDB8fHx8fA%3D%3D",
-        ctaPrimary: { label: "Shop Gifts", href: "/gifts" },
-        ctaSecondary: { label: "Learn More", href: "/about" },
-        align: "left",
-    },
-];
-
-export default function HeroSlider() {
-    const AUTOPLAY_DELAY = 8000;
-    const [api, setApi] = React.useState<CarouselApi | null>(null);
+export default function Hero() {
+    const videoRef = React.useRef<HTMLVideoElement>(null);
+    const [muted, setMuted] = React.useState(true);
+    const [ready, setReady] = React.useState(false);
 
     React.useEffect(() => {
-        if (!api) return;
+        const video = videoRef.current;
+        if (!video) return;
 
-        const interval = setInterval(() => {
-            api.scrollNext();
-        }, AUTOPLAY_DELAY);
+        const prefersReducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
 
-        return () => clearInterval(interval);
-    }, [api]);
+        if (prefersReducedMotion) {
+            video.pause();
+            return;
+        }
+
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {});
+        }
+    }, []);
+
+    const toggleSound = () => {
+        const video = videoRef.current;
+        if (!video) return;
+        video.muted = !video.muted;
+        setMuted(video.muted);
+    };
 
     return (
-        <section className="relative w-full">
-            <Carousel setApi={setApi}
-                opts={{
-                    loop: true,
-                    align: "start",
-                }} className="w-full transition-transform duration-700 ease-in-out">
-                <CarouselContent>
-                    {slides.map((s) => (
-                        <CarouselItem key={s.id} className="p-0">
-                            <div className="relative px-4 min-h-[100vh] w-full overflow-hidden">
-                                <div className="absolute inset-0 -z-10">
-                                    <Image
-                                        src={s.bg}
-                                        alt=""
-                                        fill
-                                        priority
-                                        className="object-cover"
-                                    />
-                                    <div className="absolute inset-0 bg-black/75" />
-                                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-                                </div>
+        <section className="relative h-[87vh] min-h-[640px] w-full overflow-hidden bg-[#0B0C0E]">
+            <video
+                ref={videoRef}
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                    ready ? "opacity-100" : "opacity-0"
+                }`}
+                src="https://tmactwfrm3mqjwv9.public.blob.vercel-storage.com/herobg.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                onCanPlay={() => setReady(true)}
+            />
 
-                                <div className="mx-auto flex min-h-[100vh] max-w-7xl items-center px-4 py-14 sm:px-6 lg:px-8">
-                                    <div className="grid w-full items-center gap-10 lg:grid-cols-2">
-                                        <div className="space-y-5">
-                                            <p className="inline-flex w-fit rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-medium tracking-wide text-white backdrop-blur">
-                                                {s.title}
-                                            </p>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C0E]/20 via-[#0B0C0E]/35 to-[#0B0C0E]/30" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0B0C0E]/20 via-transparent to-[#0B0C0E]/30" />
 
-                                            <h1 className="text-4xl font-semibold tracking-tight leading-tight text-white sm:text-5xl lg:text-6xl">
-                                                {s.subtitle}
-                                            </h1>
+            <div className="relative z-10 flex h-full flex-col items-center justify-end px-6 pb-34 text-center sm:px-8">
+               
 
-                                            <p className="max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-                                                {s.desc}
-                                            </p>
+                <h1
+                    className="max-w-3xl text-[#EDEAE2]"
+                    style={{
+                        fontFamily: "var(--font-display, serif)",
+                        fontSize: "clamp(2.5rem, 6vw, 5rem)",
+                        lineHeight: 1.05,
+                        letterSpacing: "-0.01em",
+                    }}
+                >
+                    Time, held to a{" "}
+                    <span className="italic text-[#C9A15C]">higher standard.</span>
+                </h1>
 
-                                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                                <Button asChild className="h-11 hover:text-white rounded-xl px-6">
-                                                    <Link href={s.ctaPrimary.href}>{s.ctaPrimary.label}</Link>
-                                                </Button>
+                <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[#c9c7bd]">
+                    Machined from surgical-grade steel, driven by a hand-finished
+                    automatic movement built to outlast the decade.
+                </p>
 
-                                                <Button
-                                                    asChild
-                                                    variant="outline"
-                                                    className="h-11 hover:text-white rounded-xl border-white/30 bg-white/10 px-6 text-white hover:bg-white/15"
-                                                >
-                                                    <Link href={s.ctaSecondary.href}>{s.ctaSecondary.label}</Link>
-                                                </Button>
-                                            </div>
+                <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+                    <Link
+                        href="/shop"
+                        className="group inline-flex items-center gap-2 border border-[#C9A15C] bg-[#C9A15C] px-7 py-3.5 text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
+                    >
+                        View all watches
+                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </Link>
+                    <Link
+                        href="/about"
+                        className="inline-flex items-center gap-2 border border-[#EDEAE2]/30 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#EDEAE2]"
+                    >
+                        The craft behind it
+                    </Link>
+                </div>
+            </div>
 
-                                            <div className="mt-6 md:grid hidden gap-3 sm:grid-cols-3">
-                                                <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-                                                    <p className="text-xs text-white/70">Fast Delivery</p>
-                                                    <p className="text-sm font-medium text-white">
-                                                        Nationwide shipping
-                                                    </p>
-                                                </div>
-                                                <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-                                                    <p className="text-xs text-white/70">Secure Checkout</p>
-                                                    <p className="text-sm font-medium text-white">
-                                                        Trusted payments
-                                                    </p>
-                                                </div>
-                                                <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-                                                    <p className="text-xs text-white/70">Easy Returns</p>
-                                                    <p className="text-sm font-medium text-white">
-                                                        7-day policy
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="relative md:block hidden mx-auto w-full max-w-[520px]">
-                                            <div className="absolute -inset-6 rounded-[32px] bg-white/10 blur-2xl" />
-                                            <div className="relative overflow-hidden rounded-xl border border-white/15 bg-white/10 p-5 backdrop-blur px-6">
-                                                <div className="relative mx-auto aspect-square w-full w-full">
-                                                    <Image
-                                                        src={s.image}
-                                                        alt="Watch"
-                                                        width={500}
-                                                        height={500}
-                                                        className="object-cover rounded-xl w-full h-full drop-shadow-2xl"
-                                                    />
-                                                </div>
-
-                                                <div className="mt-6 flex items-center justify-between gap-3">
-                                                    <p className="text-sm text-white/80">
-                                                        Premium watches • Clean design
-                                                    </p>
-                                                    <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-white/80">
-                                                        New Season
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/35 to-transparent" />
-                            </div>
-                        </CarouselItem>
-                    ))}
-                </CarouselContent>
-
-                <CarouselPrevious className="left-4 top-1/2 md:inline-flex hidden -translate-y-1/2 border-white/20 bg-white/10 text-white hover:bg-white/15" />
-                <CarouselNext className="right-4 top-1/2 md:inline-flex hidden -translate-y-1/2 border-white/20 bg-white/10 text-white hover:bg-white/15" />
-            </Carousel>
+            <button
+                type="button"
+                onClick={toggleSound}
+                aria-label={muted ? "Unmute background video" : "Mute background video"}
+                className="absolute bottom-6 right-6 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-[#EDEAE2]/25 bg-[#0B0C0E]/50 text-[#EDEAE2] backdrop-blur-sm transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]"
+            >
+                {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </button>
         </section>
     );
 }

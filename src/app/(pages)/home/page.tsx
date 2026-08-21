@@ -14,6 +14,7 @@ import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import ContactUsForm from "@/components/ContactUsForm";
 import UserWrapper from "@/app/(wrappers)/userWrapper";
+import Hero from "@/components/HeroSlider";
 
 const features = [
     {
@@ -58,7 +59,7 @@ export default function HomePg() {
     return (
         <>
             <UserWrapper>
-                <HeroSlider />
+                <Hero />
 
                 <HomeCategories />
 

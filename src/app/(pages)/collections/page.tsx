@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import UserWrapper from "@/app/(wrappers)/userWrapper";
-import { categories } from "@/components/HomeCategories";
+import { categories } from "@/lib/categories";
 
 export default function CollectionsPage() {
     return (
