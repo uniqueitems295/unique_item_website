@@ -54,7 +54,7 @@ type CartItem = {
 const CATEGORIES: { key: Category; label: string }[] = [
     { key: "all", label: "All Watches" },
     { key: "men", label: "Men Watches" },
-    { key: "women", label: "Women Watches" },
+    { key: "women", label: "Exclusive Deals" },
     { key: "couplewatches", label: "Couple watches" },
     { key: "sport", label: "Sport Watches" },
 ]
