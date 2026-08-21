@@ -3,6 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
+import axios from "axios"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -175,19 +176,22 @@ export default function CheckoutPage() {
         try {
             setPlacing(true)
 
-            const payload: CheckoutStorage = {
+            const payload = {
                 form,
-                cart,
+                items: cart,
                 subtotal,
                 shipping: SHIPPING_FEE,
                 total,
-                createdAt: new Date().toISOString(),
             }
 
-            writeCheckoutData(payload)
-            toast("Order saved. Proceeding...")
+            const res = await axios.post("/api/orders", payload)
 
-            window.location.href = "/payment-confirmation"
+            localStorage.removeItem("cart")
+            toast("Order placed successfully!")
+
+            window.location.href = `/order-success?orderId=${res.data?.orderId || ""}`
+        } catch (e: any) {
+            toast(e?.response?.data?.message || "Failed to place order")
         } finally {
             setPlacing(false)
         }

@@ -10,9 +10,6 @@ export async function POST(req: Request) {
         if (!body.items || !Array.isArray(body.items) || body.items.length === 0) {
             return NextResponse.json({ message: "Cart is empty" }, { status: 400 })
         }
-        if (!body.paymentProofUrl) {
-            return NextResponse.json({ message: "Payment proof is required" }, { status: 400 })
-        }
 
         const subtotal = Number(body.subtotal || 0)
         const shipping = Number(body.shipping || 0)
@@ -43,7 +40,7 @@ export async function POST(req: Request) {
             shipping,
             total,
 
-            paymentProofUrl: String(body.paymentProofUrl),
+            paymentProofUrl: body.paymentProofUrl ? String(body.paymentProofUrl) : "",
 
             receiver: body.receiver
                 ? {
@@ -52,7 +49,7 @@ export async function POST(req: Request) {
                 }
                 : undefined,
 
-            status: "pending_verification",
+            status: "pending",
             createdAt: new Date().toISOString(),
         }
 

@@ -4,6 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import axios from "axios"
+import { redirect } from "next/navigation"
 import { toast } from "sonner"
 import { upload } from "@vercel/blob/client"
 import { Button } from "@/components/ui/button"
@@ -35,7 +36,11 @@ function readCheckoutData(): CheckoutStorage | null {
     }
 }
 
-export default function PaymentConfirmationPage() {
+export default function Page() {
+    redirect("/checkout")
+}
+
+export function DisabledPaymentConfirmationPage() {
     const ADVANCE_AMOUNT = 250
     const ADVANCE_CURRENCY = "Rs "
 
