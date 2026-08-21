@@ -49,7 +49,7 @@ export async function POST(req: Request) {
                 }
                 : undefined,
 
-            status: "pending",
+            status: "processing",
             createdAt: new Date().toISOString(),
         }
 
