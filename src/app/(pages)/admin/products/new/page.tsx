@@ -23,8 +23,8 @@ import { toast } from "sonner"
 
 type Status = "published" | "draft"
 
-const MAX_IMAGE_BYTES = 800 * 1024
-const MAX_DIMENSION = 1600
+const MAX_IMAGE_BYTES = 3 * 1024 * 1024
+const MAX_DIMENSION = 2400
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
 function slugify(input: string) {
