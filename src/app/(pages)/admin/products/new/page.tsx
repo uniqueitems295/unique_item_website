@@ -40,7 +40,7 @@ function normalizeColor(input: string): string | null {
     const trimmed = input.trim().toLowerCase()
     if (!trimmed) return null
     if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(trimmed)) return trimmed
-    if (/^[a-z]+$/.test(trimmed)) return trimmed
+    if (/^[a-z\s]+$/.test(trimmed)) return trimmed
     return null
 }
 

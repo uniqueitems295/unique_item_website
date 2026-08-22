@@ -10,11 +10,13 @@ import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import { Star, Truck, ShieldCheck, RefreshCcw } from "lucide-react"
 import UserWrapper from "@/app/(wrappers)/userWrapper"
+import AutoPlayVideo from "@/components/AutoPlayVideo"
 
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay, Pagination } from "swiper/modules"
+import { Autoplay, Pagination, Navigation } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/pagination"
+import "swiper/css/navigation"
 
 type Product = {
     _id: string
@@ -225,10 +227,11 @@ export default function ProductDetailsPage({
                             <div className="relative overflow-hidden rounded-2xl bg-zinc-50">
                                 <div className="relative aspect-square w-full">
                                     <Swiper
-                                        modules={[Pagination, Autoplay]}
+                                        modules={[Pagination, Autoplay, Navigation]}
                                         slidesPerView={1}
                                         loop={items.length > 1}
                                         pagination={{ clickable: true }}
+                                        navigation={true}
                                         autoplay={
                                             items.length > 1
                                                 ? {
@@ -246,12 +249,8 @@ export default function ProductDetailsPage({
                                                     {item.type === "image" ? (
                                                         <Image src={item.src} alt={product.name} fill className="object-cover" />
                                                     ) : (
-                                                        <video
+                                                        <AutoPlayVideo
                                                             src={item.src}
-                                                            autoPlay
-                                                            muted
-                                                            loop
-                                                            playsInline
                                                             className="absolute inset-0 h-full w-full object-cover"
                                                         />
                                                     )}

@@ -9,8 +9,10 @@ import { ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay } from "swiper/modules"
+import { Autoplay, EffectFade } from "swiper/modules"
 import "swiper/css"
+import "swiper/css/effect-fade"
+import AutoPlayVideo from "@/components/AutoPlayVideo"
 import "swiper/css/pagination"
 
 type Product = {
@@ -235,12 +237,8 @@ export default function AllWatchesSection() {
                                                     {vidSlides.map((src, idx) => (
                                                         <SwiperSlide key={`${p._id}-vid-${idx}`}>
                                                             <div className="relative h-full w-full bg-black">
-                                                                <video
+                                                                <AutoPlayVideo
                                                                     src={src}
-                                                                    autoPlay
-                                                                    muted
-                                                                    loop
-                                                                    playsInline
                                                                     className="absolute inset-0 rounded-lg h-full w-full object-cover"
                                                                 />
                                                             </div>

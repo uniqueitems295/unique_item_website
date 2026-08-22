@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import AutoPlayVideo from "@/components/AutoPlayVideo"
 import axios from "axios"
 import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -202,12 +203,8 @@ export default function ManageProductsPage() {
                                         >
                                             <div className="relative h-14 w-14 overflow-hidden rounded-xl bg-zinc-50">
                                                 {!hasImg && hasVid ? (
-                                                    <video
+                                                    <AutoPlayVideo
                                                         src={hasVid}
-                                                        autoPlay
-                                                        muted
-                                                        loop
-                                                        playsInline
                                                         className="absolute inset-0 h-full w-full object-cover"
                                                     />
                                                 ) : (

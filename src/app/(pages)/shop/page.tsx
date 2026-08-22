@@ -14,8 +14,9 @@ import { Slider } from "@/components/ui/slider"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Spinner } from "@/components/ui/spinner"
-import { ArrowUpRight, Filter, Search } from "lucide-react"
+import { ChevronDown, Filter, SlidersHorizontal, Search, X, ArrowUpRight } from "lucide-react"
 import UserWrapper from "@/app/(wrappers)/userWrapper"
+import AutoPlayVideo from "@/components/AutoPlayVideo"
 import { useSearchParams } from "next/navigation"
 
 import { Swiper, SwiperSlide } from "swiper/react"
@@ -290,12 +291,8 @@ function ProductCard({
                             {vidSlides.map((src, idx) => (
                                 <SwiperSlide key={`${p._id}-vid-${idx}`}>
                                     <div className="relative h-full w-full bg-black">
-                                        <video
+                                        <AutoPlayVideo
                                             src={src}
-                                            autoPlay
-                                            muted
-                                            loop
-                                            playsInline
                                             className="absolute inset-0 h-full w-full object-cover"
                                         />
                                     </div>
