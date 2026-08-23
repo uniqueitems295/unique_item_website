@@ -1,108 +1,123 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { ArrowUpRight, Volume2, VolumeX } from "lucide-react";
+import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade, Navigation, Pagination } from "swiper/modules";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import "swiper/css";
+import "swiper/css/effect-fade";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+const banners = [
+    {
+        id: 1,
+        desktopImage: "/images/hero/banner1.png",
+        mobileImage: "/images/hero/mobile-banner1.png",
+        alt: "Luxury Watch Banner 1",
+    },
+    {
+        id: 2,
+        desktopImage: "/images/hero/banner1.png",
+        mobileImage: "/images/hero/mobile-banner1.png",
+        alt: "Luxury Watch Banner 2",
+    },
+    {
+        id: 3,
+        desktopImage: "/images/hero/banner1.png",
+        mobileImage: "/images/hero/mobile-banner1.png",
+        alt: "Luxury Watch Banner 3",
+    },
+];
 
 export default function Hero() {
-    const videoRef = React.useRef<HTMLVideoElement>(null);
-    const [muted, setMuted] = React.useState(true);
-    const [ready, setReady] = React.useState(false);
-
-    React.useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-
-        const prefersReducedMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        ).matches;
-
-        if (prefersReducedMotion) {
-            video.pause();
-            return;
-        }
-
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(() => { });
-        }
-    }, []);
-
-    const toggleSound = () => {
-        const video = videoRef.current;
-        if (!video) return;
-        video.muted = !video.muted;
-        setMuted(video.muted);
-    };
-
     return (
-        <section className="relative h-[87vh] min-h-[640px] w-full overflow-hidden bg-[#0B0C0E]">
-            <video
-                ref={videoRef}
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"
-                    }`}
-                src="https://tmactwfrm3mqjwv9.public.blob.vercel-storage.com/herobg.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                onCanPlay={() => setReady(true)}
-            />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C0E]/20 via-[#0B0C0E]/35 to-[#0B0C0E]/30" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0B0C0E]/20 via-transparent to-[#0B0C0E]/30" />
-
-            <div className="relative z-10 flex h-full flex-col items-center justify-end px-6 pb-34 text-center sm:px-8">
-
-
-                <h1
-                    className="max-w-3xl text-[#EDEAE2]"
-                    style={{
-                        fontFamily: "var(--font-display, serif)",
-                        fontSize: "clamp(2.5rem, 6vw, 5rem)",
-                        lineHeight: 1.05,
-                        letterSpacing: "-0.01em",
-                    }}
-                >
-                    Time, held to a{" "}
-                    <span className="italic text-[#C9A15C]">higher standard.</span>
-                </h1>
-
-                <p className="mt-6 max-w-md tracking-wide leading-relaxed text-[#fff]/90">
-                    Machined from surgical-grade steel, driven by a hand finished
-                    automatic movement built to outlast the decade.
-                </p>
-
-                <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-                    <Link
-                        href="/shop"
-                        className="group inline-flex md:w-auto w-full justify-center rounded-full items-center gap-2 border border-[#C9A15C] bg-[#C9A15C] px-7 py-3.5 text-sm font-medium text-[#0B0C0E] transition-colors hover:bg-transparent hover:text-[#C9A15C]"
-                    >
-                        View all watches
-                        <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </Link>
-                    <Link
-                        href="/about"
-                        className="inline-flex md:w-auto w-full justify-center rounded-full items-center gap-2 border border-[#EDEAE2]/30 px-7 py-3.5 text-sm font-medium text-[#EDEAE2] transition-colors hover:border-[#EDEAE2]"
-                    >
-                        The craft behind it
-                    </Link>
-                </div>
-            </div>
+        <section className="relative w-full overflow-hidden bg-[#0B0C0E] select-none group">
+            <Swiper
+                modules={[Autoplay, EffectFade, Navigation, Pagination]}
+                effect="fade"
+                fadeEffect={{ crossFade: true }}
+                speed={1000}
+                autoplay={{
+                    delay: 5000,
+                    disableOnInteraction: false,
+                }}
+                loop={true}
+                pagination={{
+                    clickable: true,
+                    el: ".hero-custom-pagination",
+                    bulletClass: "hero-custom-bullet",
+                    bulletActiveClass: "hero-custom-bullet-active",
+                }}
+                navigation={{
+                    prevEl: ".hero-prev-btn",
+                    nextEl: ".hero-next-btn",
+                }}
+                className="w-full h-auto"
+            >
+                {banners.map((banner) => (
+                    <SwiperSlide key={banner.id} className="relative w-full">
+                        <div className="relative w-full hidden md:block">
+                            <Image
+                                src={banner.desktopImage}
+                                alt={banner.alt}
+                                width={1920}
+                                height={1080}
+                                priority
+                                sizes="100vw"
+                                className="w-full h-auto object-contain block"
+                            />
+                        </div>
+                        <div className="relative w-full block md:hidden">
+                            <Image
+                                src={banner.mobileImage}
+                                alt={banner.alt}
+                                width={768}
+                                height={1024}
+                                priority
+                                sizes="100vw"
+                                className="w-full h-auto object-contain block"
+                            />
+                        </div>
+                    </SwiperSlide>
+                ))}
+            </Swiper>
 
             <button
                 type="button"
-                onClick={toggleSound}
-                aria-label={muted ? "Unmute background video" : "Mute background video"}
-                className="absolute bottom-6 right-6 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-[#EDEAE2]/25 bg-[#0B0C0E]/50 text-[#EDEAE2] backdrop-blur-sm transition-colors hover:border-[#C9A15C] hover:text-[#C9A15C]"
+                aria-label="Previous slide"
+                className="hero-prev-btn absolute left-4 sm:left-6 top-1/2 z-20 -translate-y-1/2 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-[#EDEAE2]/20 bg-[#0B0C0E]/50 text-[#EDEAE2] backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:text-[#C9A15C] hover:scale-110 active:scale-95 opacity-0 group-hover:opacity-100"
             >
-                {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
 
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C0E]/20 via-[#0B0C0E]/35 to-[#0B0C0E]/30" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0B0C0E]/20 via-transparent to-[#0B0C0E]/30" />
-            <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0B0C0E] via-[#0B0C0E]/70 to-transparent" />
+            <button
+                type="button"
+                aria-label="Next slide"
+                className="hero-next-btn absolute right-4 sm:right-6 top-1/2 z-20 -translate-y-1/2 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-[#EDEAE2]/20 bg-[#0B0C0E]/50 text-[#EDEAE2] backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:text-[#C9A15C] hover:scale-110 active:scale-95 opacity-0 group-hover:opacity-100"
+            >
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+
+            <div className="absolute bottom-4 sm:bottom-6 left-1/2 z-20 -translate-x-1/2 flex items-center gap-2 hero-custom-pagination" />
+
+            <style jsx global>{`
+                .hero-custom-bullet {
+                    display: inline-block;
+                    width: 20px;
+                    height: 3px;
+                    border-radius: 9999px;
+                    background: rgba(237, 234, 226, 0.35);
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+                .hero-custom-bullet-active {
+                    background: #C9A15C;
+                    width: 36px;
+                }
+            `}</style>
         </section>
     );
 }
