@@ -3,6 +3,7 @@
 import { useRef, useState } from "react"
 import { upload } from "@vercel/blob/client"
 import imageCompression from "browser-image-compression"
+import heic2any from "heic2any"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { X, Upload as UploadIcon, Image as ImageIcon, Video as VideoIcon, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
@@ -80,20 +81,63 @@ function uid() {
 
 // ─── Compression logic ────────────────────────────────────────────────────────
 
+// Formats that must ALWAYS be converted (browsers can't render them natively)
+const MUST_CONVERT_TYPES = [
+    "image/heic",
+    "image/heif",
+    "image/heic-sequence",
+    "image/heif-sequence",
+    "image/tiff",
+    "image/bmp",
+    "image/avif",
+]
+
+function mustConvert(file: File): boolean {
+    if (MUST_CONVERT_TYPES.includes(file.type)) return true
+    // Also check by extension for HEIC files with empty MIME
+    const ext = "." + file.name.split(".").pop()?.toLowerCase()
+    return [".heic", ".heif", ".tiff", ".tif", ".bmp"].includes(ext)
+}
+
+function isHeic(file: File): boolean {
+    if (["image/heic", "image/heif", "image/heic-sequence", "image/heif-sequence"].includes(file.type)) return true
+    const ext = "." + file.name.split(".").pop()?.toLowerCase()
+    return [".heic", ".heif"].includes(ext)
+}
+
+// Convert HEIC → JPEG blob so browser-image-compression can handle it
+async function heicToJpeg(file: File): Promise<File> {
+    const result = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 })
+    const blob = Array.isArray(result) ? result[0] : result
+    const baseName = file.name.replace(/\.heic$/i, "").replace(/\.heif$/i, "")
+    return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" })
+}
+
 async function compressImage(file: File): Promise<{ file: File; compressed: boolean }> {
     if (!isAllowedImage(file)) {
         throw new Error(`"${file.name}" is not a supported image format. Allowed: JPG, PNG, WEBP, HEIC, GIF, BMP, TIFF, AVIF, SVG.`)
     }
-    if (file.size <= MAX_IMAGE_BYTES) {
-        return { file, compressed: false }
+
+    // Pre-convert HEIC/HEIF → JPEG (browser-image-compression doesn't support HEIC)
+    let workingFile = file
+    if (isHeic(file)) {
+        workingFile = await heicToJpeg(file)
     }
-    const result = (await imageCompression(file, {
+
+    // Skip compression only if small AND already browser-renderable
+    if (workingFile.size <= MAX_IMAGE_BYTES && !mustConvert(workingFile)) {
+        return { file: workingFile, compressed: false }
+    }
+
+    // Compress + convert to WebP
+    const result = (await imageCompression(workingFile, {
         maxSizeMB: MAX_IMAGE_BYTES / (1024 * 1024),
         maxWidthOrHeight: MAX_DIMENSION,
         useWebWorker: true,
-        fileType: "image/webp",  // always convert to WebP on upload
+        fileType: "image/webp",
         initialQuality: 0.82,
     })) as File
+
     if (result.size > MAX_IMAGE_BYTES) {
         throw new Error(`"${file.name}" is still too large after compression.`)
     }
@@ -126,6 +170,9 @@ export default function MediaUploader({ images, videos, onImagesChange, onVideos
 
         setImageJobs((prev) => [...prev, ...newJobs])
 
+        // Collect all successfully uploaded URLs before updating parent state
+        const uploadedUrls: string[] = []
+
         for (let i = 0; i < files.length; i++) {
             const file = files[i]
             const job = newJobs[i]
@@ -149,7 +196,7 @@ export default function MediaUploader({ images, videos, onImagesChange, onVideos
                 })
 
                 updateImageJob(job.id, { status: "done", url: blob.url })
-                onImagesChange([...images, blob.url])
+                uploadedUrls.push(blob.url)
                 toast(`"${file.name}" uploaded`)
             } catch (err: any) {
                 const msg = err?.message || "Upload failed"
@@ -158,8 +205,15 @@ export default function MediaUploader({ images, videos, onImagesChange, onVideos
             }
         }
 
+        // ✅ Call once with ALL new URLs appended — fixes the stale-closure bug
+        // where iterating per-file would only keep the last upload
+        if (uploadedUrls.length > 0) {
+            onImagesChange([...images, ...uploadedUrls])
+        }
+
         if (imageInputRef.current) imageInputRef.current.value = ""
     }
+
 
     // ── Video Upload ─────────────────────────────────────────────────────────
 
@@ -177,6 +231,8 @@ export default function MediaUploader({ images, videos, onImagesChange, onVideos
         }))
 
         setVideoJobs((prev) => [...prev, ...newJobs])
+
+        const uploadedUrls: string[] = []
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i]
@@ -199,13 +255,18 @@ export default function MediaUploader({ images, videos, onImagesChange, onVideos
                 })
 
                 updateVideoJob(job.id, { status: "done", url: blob.url })
-                onVideosChange([...videos, blob.url])
+                uploadedUrls.push(blob.url)
                 toast(`"${file.name}" uploaded`)
             } catch (err: any) {
                 const msg = err?.message || "Upload failed"
                 updateVideoJob(job.id, { status: "error", error: msg })
                 toast(msg)
             }
+        }
+
+        // ✅ Call once with ALL new URLs — same stale-closure fix as images
+        if (uploadedUrls.length > 0) {
+            onVideosChange([...videos, ...uploadedUrls])
         }
 
         if (videoInputRef.current) videoInputRef.current.value = ""
