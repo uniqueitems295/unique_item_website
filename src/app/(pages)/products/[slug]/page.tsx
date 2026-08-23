@@ -295,7 +295,7 @@ export default function ProductDetailsPage({
                             <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
                                 <div className="lg:col-span-7 flex flex-col gap-4">
                                     <div className="group relative overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-sm">
-                                        <div className="relative aspect-square w-full">
+                                        <div className="relative aspect-[4/5] sm:aspect-square w-full">
                                             <Swiper
                                                 modules={[Pagination, Navigation]}
                                                 slidesPerView={1}
@@ -340,7 +340,7 @@ export default function ProductDetailsPage({
                                             <button
                                                 type="button"
                                                 aria-label="Previous image"
-                                                className="prod-prev-btn absolute left-4 top-1/2 z-10 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-900 shadow-md backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:bg-white hover:text-[#C9A15C] hover:scale-105 active:scale-95 opacity-0 group-hover:opacity-100"
+                                                className="prod-prev-btn absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-900 shadow-md backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:bg-white hover:text-[#C9A15C] hover:scale-105 active:scale-95 sm:opacity-0 sm:group-hover:opacity-100"
                                             >
                                                 <ChevronLeft className="h-5 w-5" />
                                             </button>
@@ -348,7 +348,7 @@ export default function ProductDetailsPage({
                                             <button
                                                 type="button"
                                                 aria-label="Next image"
-                                                className="prod-next-btn absolute right-4 top-1/2 z-10 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-900 shadow-md backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:bg-white hover:text-[#C9A15C] hover:scale-105 active:scale-95 opacity-0 group-hover:opacity-100"
+                                                className="prod-next-btn absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-900 shadow-md backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:bg-white hover:text-[#C9A15C] hover:scale-105 active:scale-95 sm:opacity-0 sm:group-hover:opacity-100"
                                             >
                                                 <ChevronRight className="h-5 w-5" />
                                             </button>
@@ -373,13 +373,13 @@ export default function ProductDetailsPage({
                                     </div>
 
                                     {items.length > 1 && (
-                                        <div className="grid grid-cols-5 gap-3">
+                                        <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-5 scrollbar-hide">
                                             {items.map((it, i) => (
                                                 <button
                                                     key={i}
                                                     type="button"
                                                     onClick={() => swiperInstance?.slideToLoop(i)}
-                                                    className={`relative aspect-square overflow-hidden rounded-xl border-2 transition-all duration-300 bg-zinc-950 ${
+                                                    className={`relative shrink-0 w-16 h-16 sm:w-auto sm:h-auto sm:aspect-square overflow-hidden rounded-xl border-2 transition-all duration-300 bg-zinc-950 ${
                                                         currentSlide === i
                                                             ? "border-[#C9A15C] ring-2 ring-[#C9A15C]/20 shadow-sm opacity-100"
                                                             : "border-zinc-200 opacity-70 hover:opacity-100"

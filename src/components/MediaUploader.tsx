@@ -3,7 +3,6 @@
 import { useRef, useState } from "react"
 import { upload } from "@vercel/blob/client"
 import imageCompression from "browser-image-compression"
-import heic2any from "heic2any"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { X, Upload as UploadIcon, Image as ImageIcon, Video as VideoIcon, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
@@ -107,6 +106,8 @@ function isHeic(file: File): boolean {
 
 // Convert HEIC → JPEG blob so browser-image-compression can handle it
 async function heicToJpeg(file: File): Promise<File> {
+    // Dynamic import keeps heic2any out of the SSR bundle (it uses `window`)
+    const { default: heic2any } = await import("heic2any")
     const result = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.92 })
     const blob = Array.isArray(result) ? result[0] : result
     const baseName = file.name.replace(/\.heic$/i, "").replace(/\.heif$/i, "")
