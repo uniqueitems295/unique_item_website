@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import Script from "next/script"
+import Providers from "./providers/react-query-provider"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,9 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const GA_ID = process.env.NEXT_PUBLIC_GA_ID // e.g. G-XXXXXXXXXX
 
   return (
-    <html lang="en">
+    <html lang="en" >
       <body className={`${poppins.variable} antialiased`}>
-        {children}
+        <Providers>{children}</Providers>
         <Toaster />
 
         {GA_ID ? (

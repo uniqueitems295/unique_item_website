@@ -2,9 +2,7 @@
 
 import Link from "next/link"
 import axios from "axios"
-import { useMemo, useRef, useState } from "react"
-import { upload } from "@vercel/blob/client"
-import imageCompression from "browser-image-compression"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -18,14 +16,11 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Upload as UploadIcon, X } from "lucide-react"
+import { ArrowLeft, X } from "lucide-react"
 import { toast } from "sonner"
+import MediaUploader from "@/components/MediaUploader"
 
 type Status = "published" | "draft"
-
-const MAX_IMAGE_BYTES = 3 * 1024 * 1024
-const MAX_DIMENSION = 2400
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
 function slugify(input: string) {
     return input
@@ -44,27 +39,11 @@ function normalizeColor(input: string): string | null {
     return null
 }
 
-function prettySize(bytes: number) {
-    if (!Number.isFinite(bytes)) return "-"
-    if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)}MB`
-    return `${Math.round(bytes / 1024)}KB`
-}
-
 export default function AddNewProductPage() {
-    const fileRef = useRef<HTMLInputElement | null>(null)
-    const videoRef = useRef<HTMLInputElement | null>(null)
-
     const [loading, setLoading] = useState(false)
-    const [uploading, setUploading] = useState(false)
-    const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null)
 
     const [images, setImages] = useState<string[]>([])
-    const [imageError, setImageError] = useState<string | null>(null)
-
     const [videos, setVideos] = useState<string[]>([])
-    const [videoUploading, setVideoUploading] = useState(false)
-    const [videoUploadProgress, setVideoUploadProgress] = useState<{ done: number; total: number } | null>(null)
-    const [videoError, setVideoError] = useState<string | null>(null)
 
     const [colorInput, setColorInput] = useState("")
     const [colors, setColors] = useState<string[]>([])
@@ -80,164 +59,9 @@ export default function AddNewProductPage() {
         inStock: true,
     })
 
-    const coverImage = useMemo(() => images?.[0] || "", [images])
-
-    const resetFileInput = () => {
-        if (fileRef.current) fileRef.current.value = ""
-    }
-
-    const resetVideoInput = () => {
-        if (videoRef.current) videoRef.current.value = ""
-    }
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = e.target
         setFormData((prev) => ({ ...prev, [id]: value }))
-    }
-
-    const handlePickImage = () => {
-        fileRef.current?.click()
-    }
-
-    const removeImageAt = (index: number) => {
-        setImages((prev) => prev.filter((_, i) => i !== index))
-        setImageError(null)
-        resetFileInput()
-    }
-
-    const compressIfNeeded = async (file: File): Promise<File> => {
-        if (file.size <= MAX_IMAGE_BYTES) return file
-
-        const compressed = (await imageCompression(file, {
-            maxSizeMB: MAX_IMAGE_BYTES / (1024 * 1024),
-            maxWidthOrHeight: MAX_DIMENSION,
-            useWebWorker: true,
-            fileType: "image/webp",
-            initialQuality: 0.8,
-        })) as File
-
-        return compressed
-    }
-
-    const uploadSingleFile = async (file: File): Promise<string | null> => {
-        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-            toast(`"${file.name}" skipped — only JPG, PNG, WEBP allowed.`)
-            return null
-        }
-
-        const compressed = await compressIfNeeded(file)
-
-        if (compressed.size > MAX_IMAGE_BYTES) {
-            toast(`"${file.name}" is still too large after compression. Skipped.`)
-            return null
-        }
-
-        const uniqueName = `${crypto.randomUUID()}-${file.name.replace(/\s+/g, "-")}.webp`
-        const blob = await upload(uniqueName, compressed, {
-            access: "public",
-            handleUploadUrl: "/api/upload",
-        })
-        return blob.url
-    }
-
-    const handleUploadImages = async (files: FileList) => {
-        if (!files.length) return
-        setImageError(null)
-        setUploading(true)
-        setUploadProgress({ done: 0, total: files.length })
-
-        try {
-            const fileArray = Array.from(files)
-            let done = 0
-
-            const results = await Promise.all(
-                fileArray.map(async (file) => {
-                    const url = await uploadSingleFile(file)
-                    done++
-                    setUploadProgress({ done, total: fileArray.length })
-                    return url
-                })
-            )
-
-            const uploaded = results.filter(Boolean) as string[]
-            if (uploaded.length > 0) {
-                setImages((prev) => [...prev, ...uploaded])
-                toast(`${uploaded.length} image${uploaded.length > 1 ? "s" : ""} uploaded ✅`)
-            }
-        } catch (e: any) {
-            const msg = e?.message || "Image upload failed"
-            setImageError(msg)
-            toast(msg)
-        } finally {
-            setUploading(false)
-            setUploadProgress(null)
-            resetFileInput()
-        }
-    }
-
-    const handlePickVideo = () => {
-        videoRef.current?.click()
-    }
-
-    const removeVideoAt = (index: number) => {
-        setVideos((prev) => prev.filter((_, i) => i !== index))
-        setVideoError(null)
-        resetVideoInput()
-    }
-
-    const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"]
-    const MAX_VIDEO_BYTES = 50 * 1024 * 1024 // 50 MB
-
-    const uploadSingleVideo = async (file: File): Promise<string | null> => {
-        if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
-            toast(`"${file.name}" skipped — only MP4, WEBM, MOV allowed.`)
-            return null
-        }
-        if (file.size > MAX_VIDEO_BYTES) {
-            toast(`"${file.name}" is too large (max 50 MB). Skipped.`)
-            return null
-        }
-        const uniqueName = `${crypto.randomUUID()}-${file.name.replace(/\s+/g, "-")}`
-        const blob = await upload(uniqueName, file, {
-            access: "public",
-            handleUploadUrl: "/api/upload",
-        })
-        return blob.url
-    }
-
-    const handleUploadVideos = async (files: FileList) => {
-        if (!files.length) return
-        setVideoError(null)
-        setVideoUploading(true)
-        setVideoUploadProgress({ done: 0, total: files.length })
-
-        try {
-            const fileArray = Array.from(files)
-            let done = 0
-
-            const results = await Promise.all(
-                fileArray.map(async (file) => {
-                    const url = await uploadSingleVideo(file)
-                    done++
-                    setVideoUploadProgress({ done, total: fileArray.length })
-                    return url
-                })
-            )
-
-            const uploaded = results.filter(Boolean) as string[]
-            if (uploaded.length > 0) {
-                setVideos((prev) => [...prev, ...uploaded])
-                toast(`${uploaded.length} video${uploaded.length > 1 ? "s" : ""} uploaded ✅`)
-            }
-        } catch (e: any) {
-            const msg = e?.message || "Video upload failed"
-            setVideoError(msg)
-            toast(msg)
-        } finally {
-            setVideoUploading(false)
-            setVideoUploadProgress(null)
-            resetVideoInput()
-        }
     }
 
     const addColor = () => {
@@ -310,12 +134,6 @@ export default function AddNewProductPage() {
             setVideos([])
             setColors([])
             setColorInput("")
-            setImageError(null)
-            setVideoError(null)
-            setUploadProgress(null)
-            setVideoUploadProgress(null)
-            resetFileInput()
-            resetVideoInput()
         } catch (error: any) {
             toast(error?.response?.data?.message || "Something went wrong ❌")
         } finally {
@@ -353,6 +171,7 @@ export default function AddNewProductPage() {
             <section className="py-10">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-8 lg:grid-cols-[1fr_420px]">
+                        {/* ── Left: Product Information ─────────────────────── */}
                         <Card className="rounded-2xl">
                             <CardHeader>
                                 <CardTitle>Product Information</CardTitle>
@@ -451,7 +270,7 @@ export default function AddNewProductPage() {
                                         <Input
                                             value={colorInput}
                                             onChange={(e) => setColorInput(e.target.value)}
-                                            placeholder='Type a color and press "Add" (e.g., black)'
+                                            placeholder='Type a color and press "Add" (e.g., light blue)'
                                             className="h-11"
                                             onKeyDown={(e) => {
                                                 if (e.key === "Enter") {
@@ -495,188 +314,14 @@ export default function AddNewProductPage() {
                             </CardContent>
                         </Card>
 
+                        {/* ── Right: Media + Status ──────────────────────────── */}
                         <div className="space-y-6">
-                            <Card className="rounded-2xl">
-                                <CardHeader>
-                                    <CardTitle>Product Images</CardTitle>
-                                </CardHeader>
-
-                                <CardContent className="space-y-4">
-                                    <input
-                                        ref={fileRef}
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        className="hidden"
-                                        onChange={(e) => {
-                                            if (e.target.files?.length) handleUploadImages(e.target.files)
-                                        }}
-                                    />
-
-                                    <div
-                                        className={
-                                            "relative flex h-40 items-center justify-center rounded-2xl border border-dashed bg-zinc-50 overflow-hidden " +
-                                            (imageError ? "border-red-500" : "")
-                                        }
-                                    >
-                                        {coverImage ? (
-                                            <>
-                                                <img src={coverImage} alt="Cover" className="h-full w-full object-cover" />
-                                                <div className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs text-zinc-800">
-                                                    Cover (first image)
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="text-center">
-                                                <UploadIcon className="mx-auto h-6 w-6 text-zinc-500" />
-                                                <p className="mt-2 text-sm text-zinc-600">Upload product images</p>
-                                                <p className="text-xs text-zinc-500">
-                                                    The first uploaded image will be used as the cover in your UI.
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {images.length > 0 && (
-                                        <div className="space-y-2">
-                                            <p className="text-xs text-zinc-600">
-                                                Uploaded Images ({images.length}) — first one is the cover
-                                            </p>
-                                            <div className="grid grid-cols-4 gap-2">
-                                                {images.map((url, idx) => (
-                                                    <div key={`${url}-${idx}`} className="relative overflow-hidden rounded-xl border bg-white">
-                                                        <img src={url} alt={`Image ${idx + 1}`} className="h-20 w-full object-cover" />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeImageAt(idx)}
-                                                            className="absolute right-1 top-1 rounded-full bg-white/90 p-1.5"
-                                                            aria-label="Remove image"
-                                                        >
-                                                            <X className="h-3.5 w-3.5" />
-                                                        </button>
-                                                        {idx === 0 && (
-                                                            <div className="absolute left-1 top-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] text-zinc-800">
-                                                                Cover
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {uploadProgress && (
-                                        <div className="rounded-xl border bg-white px-4 py-3 text-sm text-zinc-700">
-                                            Uploading {uploadProgress.done} / {uploadProgress.total}...
-                                        </div>
-                                    )}
-
-                                    {imageError && (
-                                        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                                            {imageError}
-                                        </div>
-                                    )}
-
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="w-full rounded-xl"
-                                        onClick={handlePickImage}
-                                        disabled={uploading}
-                                    >
-                                        {uploading
-                                            ? uploadProgress
-                                                ? `Uploading ${uploadProgress.done}/${uploadProgress.total}...`
-                                                : "Uploading..."
-                                            : "Add Images"}
-                                    </Button>
-                                </CardContent>
-                            </Card>
-
-                            {/* ---- Video Upload Card ---- */}
-                            <Card className="rounded-2xl">
-                                <CardHeader>
-                                    <CardTitle>Product Videos</CardTitle>
-                                </CardHeader>
-
-                                <CardContent className="space-y-4">
-                                    <input
-                                        ref={videoRef}
-                                        type="file"
-                                        accept="video/mp4,video/webm,video/quicktime"
-                                        multiple
-                                        className="hidden"
-                                        onChange={(e) => {
-                                            if (e.target.files?.length) handleUploadVideos(e.target.files)
-                                        }}
-                                    />
-
-                                    {videos.length === 0 && !videoUploading && (
-                                        <div className="flex h-32 items-center justify-center rounded-2xl border border-dashed bg-zinc-50">
-                                            <div className="text-center">
-                                                <p className="text-sm text-zinc-600">No videos uploaded yet</p>
-                                                <p className="text-xs text-zinc-500 mt-1">MP4, WEBM, MOV · max 50 MB each</p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {videos.length > 0 && (
-                                        <div className="space-y-2">
-                                            <p className="text-xs text-zinc-600">
-                                                Uploaded Videos ({videos.length})
-                                            </p>
-                                            <div className="space-y-2">
-                                                {videos.map((url, idx) => (
-                                                    <div key={`${url}-${idx}`} className="relative overflow-hidden rounded-xl border bg-zinc-50">
-                                                        <video
-                                                            src={url}
-                                                            controls
-                                                            className="w-full max-h-48 object-contain bg-black"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeVideoAt(idx)}
-                                                            className="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 shadow"
-                                                            aria-label="Remove video"
-                                                        >
-                                                            <X className="h-3.5 w-3.5" />
-                                                        </button>
-                                                        <div className="px-3 py-1.5 text-xs text-zinc-500">
-                                                            Video {idx + 1}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {videoUploadProgress && (
-                                        <div className="rounded-xl border bg-white px-4 py-3 text-sm text-zinc-700">
-                                            Uploading {videoUploadProgress.done} / {videoUploadProgress.total}...
-                                        </div>
-                                    )}
-
-                                    {videoError && (
-                                        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                                            {videoError}
-                                        </div>
-                                    )}
-
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="w-full rounded-xl"
-                                        onClick={handlePickVideo}
-                                        disabled={videoUploading}
-                                    >
-                                        {videoUploading
-                                            ? videoUploadProgress
-                                                ? `Uploading ${videoUploadProgress.done}/${videoUploadProgress.total}...`
-                                                : "Uploading..."
-                                            : "Add Videos"}
-                                    </Button>
-                                </CardContent>
-                            </Card>
+                            <MediaUploader
+                                images={images}
+                                videos={videos}
+                                onImagesChange={setImages}
+                                onVideosChange={setVideos}
+                            />
 
                             <Card className="rounded-2xl">
                                 <CardHeader>
@@ -720,7 +365,7 @@ export default function AddNewProductPage() {
                                         type="button"
                                         className="w-full h-11 rounded-xl"
                                         onClick={handleSubmit}
-                                        disabled={loading || uploading || videoUploading}
+                                        disabled={loading}
                                     >
                                         {loading ? "Saving..." : "Save Product"}
                                     </Button>

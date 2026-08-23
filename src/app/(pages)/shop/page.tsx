@@ -4,7 +4,7 @@ import * as React from "react"
 import { Suspense } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import axios from "axios"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -14,10 +14,12 @@ import { Slider } from "@/components/ui/slider"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Spinner } from "@/components/ui/spinner"
-import { ChevronDown, Filter, SlidersHorizontal, Search, X, ArrowUpRight } from "lucide-react"
+import { Filter, Search, ArrowUpRight } from "lucide-react"
 import UserWrapper from "@/app/(wrappers)/userWrapper"
 import AutoPlayVideo from "@/components/AutoPlayVideo"
 import { useSearchParams } from "next/navigation"
+import { fetchProducts } from "@/lib/api/products"
+import type { Product } from "@/lib/api/products"
 
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Autoplay, Pagination } from "swiper/modules"
@@ -27,21 +29,6 @@ import "swiper/css/pagination"
 type Category = "all" | "men" | "sport" | "couplewatches" | "women"
 type Availability = "all" | "in" | "out"
 
-type Product = {
-    _id: string
-    name: string
-    slug: string
-    price: number
-    oldPrice?: number | null
-    category: string
-    collection: string
-    description?: string
-    images?: string[]
-    videos?: string[]
-    colors?: string[]
-    status: "published" | "draft"
-    inStock: boolean
-}
 
 type CartItem = {
     id: string
@@ -385,17 +372,24 @@ function ProductCard({
 function ShopInner() {
     const searchParams = useSearchParams()
 
-    const [loading, setLoading] = React.useState(true)
-    const [products, setProducts] = React.useState<Product[]>([])
-    const [error, setError] = React.useState("")
+    const { data: allProducts = [], isLoading, isError } = useQuery({
+        queryKey: ["products"],
+        queryFn: fetchProducts,
+        staleTime: 5 * 60 * 1000, // 5 min — cached across navigation
+    })
+
+    const loading = isLoading
+    const error = isError ? "Failed to load products" : ""
+    const products = allProducts
+
+    const [autoplayMs] = React.useState<Record<string, number>>(() => ({}))
+    const getAutoplay = (id: string) => autoplayMs[id] ?? randInt(4000, 6500)
 
     const [category, setCategory] = React.useState<Category>("all")
     const [query, setQuery] = React.useState("")
     const [availability, setAvailability] = React.useState<Availability>("all")
     const [price, setPrice] = React.useState<number[]>([0, 10000])
-
     const [addedIds, setAddedIds] = React.useState<Record<string, boolean>>({})
-    const [autoplayMs, setAutoplayMs] = React.useState<Record<string, number>>({})
 
     const { min, max } = React.useMemo(() => getMinMax(products), [products])
 
@@ -406,27 +400,7 @@ function ShopInner() {
         setAddedIds(map)
     }, [])
 
-    const fetchProducts = async () => {
-        try {
-            setLoading(true)
-            setError("")
-            const res = await axios.get("/api/products")
-            const list: Product[] = res.data?.products || []
-            // API already filters isPublished:true — no client-side filter needed
-            setProducts(list)
-
-            const auto: Record<string, number> = {}
-            for (const p of list) auto[p._id] = randInt(4000, 6500)
-            setAutoplayMs(auto)
-        } catch (e: any) {
-            setError(e?.response?.data?.message || "Failed to load products")
-        } finally {
-            setLoading(false)
-        }
-    }
-
     React.useEffect(() => {
-        fetchProducts()
         syncAddedState()
     }, [syncAddedState])
 

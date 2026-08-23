@@ -3,10 +3,12 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import axios from "axios"
+import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { fetchProducts } from "@/lib/api/products"
+import type { Product } from "@/lib/api/products"
 
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Autoplay, EffectFade } from "swiper/modules"
@@ -15,21 +17,7 @@ import "swiper/css/effect-fade"
 import AutoPlayVideo from "@/components/AutoPlayVideo"
 import "swiper/css/pagination"
 
-type Product = {
-    _id: string
-    name: string
-    slug: string
-    price: number
-    oldPrice?: number | null
-    category: string
-    collection: string
-    description?: string
-    images?: string[]
-    videos?: string[]
-    colors?: string[]
-    status: "published" | "draft"
-    inStock: boolean
-}
+
 
 type CartItem = {
     id: string
@@ -89,10 +77,24 @@ function randInt(min: number, max: number) {
 }
 
 export default function AllWatchesSection() {
-    const [loading, setLoading] = React.useState(true)
-    const [products, setProducts] = React.useState<Product[]>([])
+    const { data, isLoading } = useQuery({
+        queryKey: ["products"],
+        queryFn: fetchProducts,
+        staleTime: 5 * 60 * 1000, // 5 min — won't re-fetch on navigation
+        select: (all) => all.slice(0, 8),
+    })
+
+    const products = data ?? []
+    const loading = isLoading
+
     const [addedIds, setAddedIds] = React.useState<Record<string, boolean>>({})
-    const [autoplayMs, setAutoplayMs] = React.useState<Record<string, number>>({})
+    const [autoplayMs] = React.useState<Record<string, number>>(() => ({}))
+
+    // Randomise autoplay delay once per product (stable across renders)
+    const getAutoplay = React.useCallback(
+        (id: string) => autoplayMs[id] ?? randInt(4000, 6500),
+        [autoplayMs]
+    )
 
     const syncAddedState = React.useCallback(() => {
         const cart = readCart()
@@ -101,36 +103,14 @@ export default function AllWatchesSection() {
         setAddedIds(map)
     }, [])
 
-    const fetchProducts = React.useCallback(async () => {
-        try {
-            setLoading(true)
-            const res = await axios.get("/api/products")
-            const list: Product[] = res.data?.products || []
-            const slice = list.slice(0, 8)
-
-            setProducts(slice)
-
-            const auto: Record<string, number> = {}
-            for (const p of slice) auto[p._id] = randInt(4000, 6500)
-            setAutoplayMs(auto)
-        } catch (e: any) {
-            toast(e?.response?.data?.message || "Failed to load products")
-            setProducts([])
-        } finally {
-            setLoading(false)
-        }
-    }, [])
-
     React.useEffect(() => {
-        fetchProducts()
         syncAddedState()
-
         const onStorage = (e: StorageEvent) => {
             if (e.key === "cart") syncAddedState()
         }
         window.addEventListener("storage", onStorage)
         return () => window.removeEventListener("storage", onStorage)
-    }, [fetchProducts, syncAddedState])
+    }, [syncAddedState])
 
     const handleAdd = (p: Product) => {
         if (!p.inStock) return
@@ -214,7 +194,7 @@ export default function AllWatchesSection() {
                                                     autoplay={
                                                         totalSlides > 1
                                                             ? {
-                                                                delay: autoplayMs[p._id] ?? 5000,
+                                                                delay: getAutoplay(p._id),
                                                                 disableOnInteraction: false,
                                                                 pauseOnMouseEnter: true,
                                                             }
