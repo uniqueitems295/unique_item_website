@@ -157,6 +157,10 @@
   scroll-behavior: smooth;
 }
 
+body {
+  overflow-x: hidden;
+}
+
 /* Hide scrollbar visually but keep scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -164,4 +168,4 @@
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-}
+}

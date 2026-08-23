@@ -295,82 +295,86 @@ export default function ProductDetailsPage({
                             <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
                                 <div className="lg:col-span-7 flex flex-col gap-4">
                                     <div className="group relative overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-sm">
-                                        <div className="relative aspect-[4/5] sm:aspect-square w-full">
-                                            <Swiper
-                                                modules={[Pagination, Navigation]}
-                                                slidesPerView={1}
-                                                onSwiper={setSwiperInstance}
-                                                onSlideChange={(swiper) => setCurrentSlide(swiper.realIndex)}
-                                                loop={items.length > 1}
-                                                pagination={{
-                                                    clickable: true,
-                                                    el: ".product-custom-pagination",
-                                                    bulletClass: "prod-bullet",
-                                                    bulletActiveClass: "prod-bullet-active",
-                                                }}
-                                                navigation={{
-                                                    prevEl: ".prod-prev-btn",
-                                                    nextEl: ".prod-next-btn",
-                                                }}
-                                                className="h-full w-full"
-                                            >
-                                                {items.map((item, idx) => (
-                                                    <SwiperSlide key={`${product._id}-${idx}`} className="relative h-full w-full">
-                                                        <div className="relative h-full w-full bg-zinc-50">
-                                                            {item.type === "image" ? (
-                                                                <Image
-                                                                    src={item.src}
-                                                                    alt={product.name}
-                                                                    fill
-                                                                    priority={idx === 0}
-                                                                    sizes="(max-width: 1024px) 100vw, 55vw"
-                                                                    className="object-cover object-center"
-                                                                />
-                                                            ) : (
-                                                                <VideoPlayer
-                                                                    src={item.src}
-                                                                    isActive={currentSlide === idx}
-                                                                />
-                                                            )}
-                                                        </div>
-                                                    </SwiperSlide>
-                                                ))}
-                                            </Swiper>
+                                        {/* Aspect-ratio spacer — 4:5 on mobile/tablet, 1:1 on desktop */}
+                                        <div className="relative w-full" style={{ paddingBottom: "min(125%, 100vw)" }}>
+                                            <div className="absolute inset-0">
+                                                <Swiper
+                                                    modules={[Pagination, Navigation]}
+                                                    slidesPerView={1}
+                                                    onSwiper={setSwiperInstance}
+                                                    onSlideChange={(swiper) => setCurrentSlide(swiper.realIndex)}
+                                                    loop={items.length > 1}
+                                                    pagination={{
+                                                        clickable: true,
+                                                        el: ".product-custom-pagination",
+                                                        bulletClass: "prod-bullet",
+                                                        bulletActiveClass: "prod-bullet-active",
+                                                    }}
+                                                    navigation={{
+                                                        prevEl: ".prod-prev-btn",
+                                                        nextEl: ".prod-next-btn",
+                                                    }}
+                                                    style={{ height: "100%", width: "100%" }}
+                                                >
+                                                    {items.map((item, idx) => (
+                                                        <SwiperSlide key={`${product._id}-${idx}`} style={{ height: "100%" }}>
+                                                            <div className="relative h-full w-full bg-zinc-50">
+                                                                {item.type === "image" ? (
+                                                                    <Image
+                                                                        src={item.src}
+                                                                        alt={product.name}
+                                                                        fill
+                                                                        priority={idx === 0}
+                                                                        sizes="(max-width: 1024px) 100vw, 55vw"
+                                                                        className="object-cover object-center"
+                                                                    />
+                                                                ) : (
+                                                                    <VideoPlayer
+                                                                        src={item.src}
+                                                                        isActive={currentSlide === idx}
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </SwiperSlide>
+                                                    ))}
+                                                </Swiper>
 
-                                            <button
-                                                type="button"
-                                                aria-label="Previous image"
-                                                className="prod-prev-btn absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-900 shadow-md backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:bg-white hover:text-[#C9A15C] hover:scale-105 active:scale-95 sm:opacity-0 sm:group-hover:opacity-100"
-                                            >
-                                                <ChevronLeft className="h-5 w-5" />
-                                            </button>
+                                                <button
+                                                    type="button"
+                                                    aria-label="Previous image"
+                                                    className="prod-prev-btn absolute left-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-900 shadow-md backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:bg-white hover:text-[#C9A15C] active:scale-95 lg:opacity-0 lg:group-hover:opacity-100"
+                                                >
+                                                    <ChevronLeft className="h-5 w-5" />
+                                                </button>
 
-                                            <button
-                                                type="button"
-                                                aria-label="Next image"
-                                                className="prod-next-btn absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-900 shadow-md backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:bg-white hover:text-[#C9A15C] hover:scale-105 active:scale-95 sm:opacity-0 sm:group-hover:opacity-100"
-                                            >
-                                                <ChevronRight className="h-5 w-5" />
-                                            </button>
+                                                <button
+                                                    type="button"
+                                                    aria-label="Next image"
+                                                    className="prod-next-btn absolute right-3 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white/90 text-zinc-900 shadow-md backdrop-blur-md transition-all duration-300 hover:border-[#C9A15C] hover:bg-white hover:text-[#C9A15C] active:scale-95 lg:opacity-0 lg:group-hover:opacity-100"
+                                                >
+                                                    <ChevronRight className="h-5 w-5" />
+                                                </button>
 
-                                            <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                                                {discountPercentage > 0 && (
-                                                    <span className="rounded-full bg-zinc-900 px-3.5 py-1 text-[11px] font-medium tracking-wider uppercase text-white shadow-sm">
-                                                        Save {discountPercentage}%
-                                                    </span>
-                                                )}
-                                                {!product.inStock && (
-                                                    <span className="rounded-full bg-rose-500 px-3.5 py-1 text-[11px] font-medium tracking-wider uppercase text-white shadow-sm">
-                                                        Sold Out
-                                                    </span>
-                                                )}
-                                            </div>
+                                                <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                                                    {discountPercentage > 0 && (
+                                                        <span className="rounded-full bg-zinc-900 px-3.5 py-1 text-[11px] font-medium tracking-wider uppercase text-white shadow-sm">
+                                                            Save {discountPercentage}%
+                                                        </span>
+                                                    )}
+                                                    {!product.inStock && (
+                                                        <span className="rounded-full bg-rose-500 px-3.5 py-1 text-[11px] font-medium tracking-wider uppercase text-white shadow-sm">
+                                                            Sold Out
+                                                        </span>
+                                                    )}
+                                                </div>
 
-                                            <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
-                                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md product-custom-pagination" />
+                                                <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
+                                                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md product-custom-pagination" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+
 
                                     {items.length > 1 && (
                                         <div className="flex gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-5 scrollbar-hide">
