@@ -1,12 +1,10 @@
 "use client"
 
 const MESSAGES = [
-    "Buy any 2 Watches & Get free Watch adjuster Tool",
-    "RS 250 delivery charges advance payment required",
-    "OUTLET COMING SOON",
-    "Buy any 2 Watches & Get free Watch adjuster Tool",
-    "RS 250 delivery charges advance payment required",
-    "OUTLET COMING SOON",
+    "Limited Time: 2 Watches for the Price of 1",
+    "Buy 1, Get 1 Matching Watch FREE",
+    "Rs. 250 Delivery Charges (Advance Payment)",
+    "Outlet Coming Soon",
 ]
 
 export default function AnnouncementBar() {

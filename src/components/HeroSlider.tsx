@@ -20,16 +20,10 @@ const banners = [
     },
     {
         id: 2,
-        desktopImage: "/images/hero/banner1.png",
-        mobileImage: "/images/hero/mobile-banner1.png",
+        desktopImage: "/images/hero/banner2.png",
+        mobileImage: "/images/hero/mobile-banner2.png",
         alt: "Luxury Watch Banner 2",
-    },
-    {
-        id: 3,
-        desktopImage: "/images/hero/banner1.png",
-        mobileImage: "/images/hero/mobile-banner1.png",
-        alt: "Luxury Watch Banner 3",
-    },
+    }
 ];
 
 export default function Hero() {

@@ -10,9 +10,9 @@ import { categories } from "@/lib/categories";
 
 export default function HomeCategories() {
     return (
-        <section className="w-full bg-[#0B0C0E] py-20 md:py-28">
+        <section className="w-full bg-[#0B0C0E] py-20 md:py-20">
             <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
-                <div className="mb-14 flex flex-col gap-4 border-b border-[#1E1F21] pb-10 md:mb-20 md:flex-row md:items-end md:justify-between">
+                {/* <div className="mb-14 flex flex-col gap-4 border-b border-[#1E1F21] pb-10 md:mb-20 md:flex-row md:items-end md:justify-between">
                     <div>
                         <span
                             className="mb-4 block text-xs uppercase text-[#C9A15C]"
@@ -36,7 +36,7 @@ export default function HomeCategories() {
                         Four collections, each built around a different way of keeping
                         time. Find the one that fits how you move.
                     </p>
-                </div>
+                </div> */}
 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {categories.map((cat, i) => (
