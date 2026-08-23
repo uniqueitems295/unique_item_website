@@ -10,10 +10,41 @@ import { toast } from "sonner"
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const MAX_IMAGE_BYTES = 3 * 1024 * 1024   // 3 MB — blob storage limit
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024   // 5 MB — blob storage limit
 const MAX_DIMENSION = 2400
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024  // 50 MB
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
+
+// All accepted image MIME types (HEIC may arrive as empty string on iOS)
+const ALLOWED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/bmp",
+    "image/tiff",
+    "image/avif",
+    "image/svg+xml",
+    "image/heic",
+    "image/heif",
+    "image/heic-sequence",
+    "image/heif-sequence",
+]
+
+
+const ALLOWED_IMAGE_EXTENSIONS = [
+    ".jpg", ".jpeg", ".png", ".webp", ".gif",
+    ".bmp", ".tiff", ".tif", ".avif", ".svg",
+    ".heic", ".heif",
+]
+
+function isAllowedImage(file: File): boolean {
+    if (ALLOWED_IMAGE_TYPES.includes(file.type)) return true
+    // Fallback: check extension (useful for HEIC on some devices)
+    const ext = "." + file.name.split(".").pop()?.toLowerCase()
+    return ALLOWED_IMAGE_EXTENSIONS.includes(ext)
+}
+
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"]
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -50,8 +81,8 @@ function uid() {
 // ─── Compression logic ────────────────────────────────────────────────────────
 
 async function compressImage(file: File): Promise<{ file: File; compressed: boolean }> {
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        throw new Error(`Only JPG, PNG, WEBP allowed. "${file.name}" skipped.`)
+    if (!isAllowedImage(file)) {
+        throw new Error(`"${file.name}" is not a supported image format. Allowed: JPG, PNG, WEBP, HEIC, GIF, BMP, TIFF, AVIF, SVG.`)
     }
     if (file.size <= MAX_IMAGE_BYTES) {
         return { file, compressed: false }
@@ -60,7 +91,7 @@ async function compressImage(file: File): Promise<{ file: File; compressed: bool
         maxSizeMB: MAX_IMAGE_BYTES / (1024 * 1024),
         maxWidthOrHeight: MAX_DIMENSION,
         useWebWorker: true,
-        fileType: "image/webp",
+        fileType: "image/webp",  // always convert to WebP on upload
         initialQuality: 0.82,
     })) as File
     if (result.size > MAX_IMAGE_BYTES) {
@@ -207,7 +238,7 @@ export default function MediaUploader({ images, videos, onImagesChange, onVideos
                         <ImageIcon className="h-4 w-4 text-zinc-500" />
                         Product Images
                         <span className="ml-auto text-xs font-normal text-zinc-500">
-                            Auto-compressed · JPG / PNG / WEBP
+                            Auto-compressed · JPG / PNG / WEBP / HEIC / GIF / BMP
                         </span>
                     </CardTitle>
                 </CardHeader>
@@ -216,7 +247,7 @@ export default function MediaUploader({ images, videos, onImagesChange, onVideos
                     <input
                         ref={imageInputRef}
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/bmp,image/tiff,image/avif,image/svg+xml,image/heic,image/heif,.heic,.heif,.jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff,.tif,.avif,.svg"
                         multiple
                         className="hidden"
                         onChange={(e) => { if (e.target.files?.length) handleImageFiles(e.target.files) }}
