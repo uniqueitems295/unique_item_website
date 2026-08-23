@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Watch, Facebook, Instagram, Twitter, Mail, Phone, LucideTwitter } from "lucide-react";
 import Image from "next/image";
+import { FaTiktok } from "react-icons/fa";
 
 export default function Footer() {
     return (
@@ -102,6 +103,12 @@ export default function Footer() {
                                         className="rounded-full transition-all bg-zinc-800 p-4 hover:bg-white hover:text-zinc-900"
                                     >
                                         <Instagram className="h-5 w-5" />
+                                    </Link>
+                                    <Link
+                                        href="https://www.tiktok.com/@uniqueitems295?_r=1&_t=ZS-997zKpfSUia"
+                                        className="rounded-full transition-all bg-zinc-800 p-4 hover:bg-white hover:text-zinc-900"
+                                    >
+                                        <FaTiktok className="h-5 w-5" />
                                     </Link>
                                 </li>
                             </ul>
