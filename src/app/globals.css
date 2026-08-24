@@ -161,10 +161,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Announcement bar — seamless infinite marquee ──────────────────────────
-   Two identical copies of the content are placed side by side.
-   The animation slides them left by exactly 50% (one full copy width).
-   When it resets back to 0%, the content is identical → invisible jump. */
 .announcement-marquee {
   animation: announcement-scroll 15s linear infinite;
   will-change: transform;
@@ -181,7 +177,6 @@ body {
   }
 }
 
-/* Hide scrollbar visually but keep scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

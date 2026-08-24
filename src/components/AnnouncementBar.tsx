@@ -1,14 +1,11 @@
 "use client"
 
 const MESSAGES = [
-    "Buy One Timepiece — Receive One Complimentary. Two Watches, One Price.",
-    "Cash on Delivery Available Nationwide — Seamless & Secure",
-    "Inspect Your Order First. Satisfaction Confirmed Before You Pay.",
+    "Buy 1 watch get 1 free",
+    "Cash on delivery",
+    "First check then pay",
 ]
 
-// Repeat 4 times so there's always enough content to fill the screen
-// and the reset (at -50%) is invisible
-const REPEATED = [...MESSAGES, ...MESSAGES, ...MESSAGES, ...MESSAGES]
 
 export default function AnnouncementBar() {
     return (
@@ -16,9 +13,6 @@ export default function AnnouncementBar() {
             className="w-full overflow-hidden bg-[#0B0C0E] border-b border-white/10"
             aria-label="Announcements"
         >
-            {/* Two identical sets — animation moves first set fully off screen (-50%)
-                at which point the second set is in exactly the same position the
-                first set started, making the reset completely invisible */}
             <div className="announcement-marquee flex whitespace-nowrap">
                 {[0, 1].map((copy) => (
                     <div
