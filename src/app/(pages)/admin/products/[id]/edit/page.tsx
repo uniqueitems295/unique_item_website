@@ -42,7 +42,7 @@ function normalizeColor(input: string): string | null {
     const trimmed = input.trim().toLowerCase()
     if (!trimmed) return null
     if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(trimmed)) return trimmed
-    if (/^[a-z]+$/.test(trimmed)) return trimmed
+    if (/^[a-z\s]+$/.test(trimmed)) return trimmed
     return null
 }
 
@@ -402,7 +402,7 @@ export default function EditProductPage() {
                                         <Input
                                             value={colorInput}
                                             onChange={(e) => setColorInput(e.target.value)}
-                                            placeholder='Type a color and press "Add" (e.g., black)'
+                                            placeholder='Type a color and press "Add" (e.g., light blue)'
                                             className="h-11"
                                             onKeyDown={(e) => {
                                                 if (e.key === "Enter") {
